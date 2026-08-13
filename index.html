@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Spendly — Know where it goes</title>
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <meta name="description" content="Spendly — Know where it goes. Track daily expenses, manage budgets, and keep a friend ledger.">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "on-surface-variant": "#45474c",
+            "surface-container-low": "#f2f4f6",
+            "outline-variant": "#c5c6cd",
+            "on-error-container": "#93000a",
+            "secondary-container": "#6cf8bb",
+            "surface-container": "#eceef0",
+            "on-primary-container": "#8590a6",
+            "surface-container-high": "#e6e8ea",
+            "on-error": "#ffffff",
+            "on-background": "#191c1e",
+            "on-surface": "#191c1e",
+            "primary": "#091426",
+            "on-primary": "#ffffff",
+            "surface-dim": "#d8dadc",
+            "surface": "#f7f9fb",
+            "surface-container-highest": "#e0e3e5",
+            "on-secondary-container": "#00714d",
+            "primary-container": "#1e293b",
+            "error-container": "#ffdad6",
+            "on-secondary": "#ffffff",
+            "error": "#ba1a1a",
+            "surface-tint": "#545f73",
+            "outline": "#75777d",
+            "background": "#f7f9fb",
+            "inverse-surface": "#2d3133",
+            "surface-container-lowest": "#ffffff",
+            "secondary": "#006c49",
+            "surface-variant": "#e0e3e5"
+          },
+          fontFamily: { "inter": ["Inter", "sans-serif"] },
+          fontSize: {
+            "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+            "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+            "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+            "numeric-data": ["16px", { lineHeight: "24px", fontWeight: "500" }],
+          },
+          spacing: {
+            "container-max": "1280px",
+            "margin-desktop": "40px",
+            "margin-mobile": "16px",
+            "gutter": "24px",
+          },
+          borderRadius: {
+            "DEFAULT": "4px",
+            "lg": "8px",
+            "xl": "12px",
+            "2xl": "16px",
+            "full": "9999px",
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-inter text-body-md text-on-surface bg-[#F8FAFC] min-h-screen flex">
+
+  <!-- ============== SIDEBAR ============== -->
+  <nav id="sidebar" class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface border-r border-outline-variant shadow-sm py-6 px-4 z-50">
+    <!-- Brand -->
+    <div class="mb-8 px-2">
+      <img src="logo_brand.png" alt="Spendly" class="h-10 w-auto object-contain max-w-[200px]"/>
+      <p class="text-[11px] text-on-surface-variant font-medium tracking-tight mt-1.5 ml-0.5">Know where it goes</p>
+    </div>
+    <!-- Nav Links -->
+    <ul id="navMenu" class="flex-1 space-y-1">
+      <li>
+        <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200 active:scale-95 text-primary font-bold border-r-4 border-primary bg-surface-container" data-page="dashboard">
+          <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">dashboard</span>
+          <span class="text-body-md">Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200 active:scale-95 text-on-surface-variant hover:text-primary hover:bg-surface-container-low" data-page="history">
+          <span class="material-symbols-outlined">history</span>
+          <span class="text-body-md font-medium">History</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200 active:scale-95 text-on-surface-variant hover:text-primary hover:bg-surface-container-low" data-page="friends">
+          <span class="material-symbols-outlined">group</span>
+          <span class="text-body-md font-medium">Friends</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200 active:scale-95 text-on-surface-variant hover:text-primary hover:bg-surface-container-low" data-page="upcoming">
+          <span class="material-symbols-outlined">event</span>
+          <span class="text-body-md font-medium">Upcoming</span>
+        </a>
+      </li>
+    </ul>
+    <!-- Bottom CTA -->
+    <div class="mt-auto pt-6 border-t border-outline-variant">
+      <button id="sidebarAddBtn" class="w-full bg-primary text-on-primary py-2 px-4 rounded-lg text-body-md font-medium hover:opacity-90 transition-opacity active:scale-95 flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">add</span> Add Expense
+      </button>
+      <button id="exportBtn" class="w-full mt-3 text-on-surface-variant hover:text-primary text-body-sm py-2 px-4 rounded-lg hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">download</span> Export CSV
+      </button>
+      <button id="dbModalBtn" class="w-full mt-2 text-on-surface-variant hover:text-primary text-body-sm py-2 px-4 rounded-lg hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">database</span> Database & Backup
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ============== MAIN WRAPPER ============== -->
+  <div class="flex-1 flex flex-col md:ml-64 w-full h-screen overflow-hidden">
+
+    <!-- ============== TOP BAR ============== -->
+    <header class="flex justify-between items-center w-full px-4 md:px-margin-desktop h-16 bg-surface border-b border-outline-variant shadow-sm sticky top-0 z-40 flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <button id="menuToggle" class="md:hidden text-on-surface-variant">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <h2 class="text-headline-md font-extrabold text-primary" id="pageTitle">Dashboard</h2>
+      </div>
+      <div class="flex items-center gap-4 relative">
+        <span class="hidden sm:block text-body-sm text-on-surface-variant" id="currentDate"></span>
+        <button id="notifBtn" class="text-on-surface-variant hover:text-primary transition-all p-2 rounded-full hover:bg-surface-container-low relative" title="Notifications">
+          <span class="material-symbols-outlined text-[22px]">notifications</span>
+          <span id="notifBadge" class="absolute top-0 right-0 min-w-[18px] h-[18px] px-1 bg-error text-white text-[10px] font-bold rounded-full flex items-center justify-center border border-white hidden">0</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Notification Dropdown Panel -->
+    <div class="notif-panel" id="notifDropdown">
+      <div class="p-3.5 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[20px]">notifications</span>
+          <h3 class="text-body-md font-bold text-primary">Notifications & Alerts</h3>
+        </div>
+        <button id="markNotifsReadBtn" class="text-[12px] font-semibold text-secondary hover:underline cursor-pointer">Mark all read</button>
+      </div>
+      <div class="max-h-[360px] overflow-y-auto custom-scrollbar p-2 space-y-1" id="notifList">
+        <p class="text-body-sm text-on-surface-variant text-center py-8">No notifications</p>
+      </div>
+    </div>
+
+    <!-- ============== CONTENT AREA ============== -->
+    <main class="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-margin-desktop">
+      <div class="max-w-[1280px] mx-auto">
+
+        <!-- ===== DASHBOARD PAGE ===== -->
+        <section class="page active" id="page-dashboard">
+          <!-- Stats Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Monthly Budget -->
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow card-shadow-hover transition-shadow">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-label-md text-on-surface-variant uppercase tracking-wider">Monthly Budget</span>
+                <span class="material-symbols-outlined text-outline text-[20px]">payments</span>
+              </div>
+              <div class="text-headline-lg text-primary mt-2" id="budgetValue">₹0</div>
+              <div class="mt-3 flex items-center justify-between gap-2 flex-wrap border-t border-surface-container-low pt-2">
+                <button id="editBudgetBtn" class="text-label-md text-secondary hover:underline cursor-pointer font-medium">Set Budget →</button>
+                <div id="budgetFriendLedgerMini"></div>
+              </div>
+            </div>
+            <!-- Total Spent -->
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow card-shadow-hover transition-shadow">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-label-md text-on-surface-variant uppercase tracking-wider">Total Spent</span>
+                <span class="material-symbols-outlined text-outline text-[20px]">account_balance_wallet</span>
+              </div>
+              <div class="text-headline-lg text-primary mt-2" id="totalSpent">₹0</div>
+              <div class="mt-2 flex items-center text-body-sm" id="spentTrend"></div>
+            </div>
+            <!-- Remaining -->
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow card-shadow-hover transition-shadow">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-label-md text-on-surface-variant uppercase tracking-wider">Remaining</span>
+                <span class="material-symbols-outlined text-outline text-[20px]">savings</span>
+              </div>
+              <div class="text-headline-lg mt-2" id="remainingValue">₹0</div>
+              <div class="mt-2">
+                <div class="progress-track"><div class="progress-fill" id="budgetProgressBar" style="width:0%"></div></div>
+                <div class="text-right text-label-md text-on-surface-variant mt-1" id="budgetPercent">0% left</div>
+              </div>
+            </div>
+            <!-- Today's Spend -->
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow card-shadow-hover transition-shadow">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-label-md text-on-surface-variant uppercase tracking-wider">Today's Spend</span>
+                <span class="material-symbols-outlined text-outline text-[20px]">today</span>
+              </div>
+              <div class="text-headline-lg text-primary mt-2" id="todaySpend">₹0</div>
+            </div>
+          </div>
+
+          <!-- Two-column: Today's Expenses + Recent Activity -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Today's Expenses (8 cols) -->
+            <div class="md:col-span-8">
+              <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-surface-container-low">
+                  <h3 class="text-headline-sm text-primary">Today's Expenses</h3>
+                  <button id="addExpenseDashBtn" class="bg-primary text-on-primary px-3 py-1.5 rounded-lg flex items-center text-label-md hover:opacity-90 transition-opacity active:scale-95">
+                    <span class="material-symbols-outlined text-[16px] mr-1">add</span> Add
+                  </button>
+                </div>
+                <div id="todayExpensesList">
+                  <p class="text-body-sm text-on-surface-variant text-center py-10">No expenses today yet.</p>
+                </div>
+              </div>
+            </div>
+            <!-- Recent Activity (4 cols) -->
+            <div class="md:col-span-4">
+              <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-surface-container-low">
+                  <h3 class="text-headline-sm text-primary">Recent Activity</h3>
+                </div>
+                <div id="recentTransactions">
+                  <p class="text-body-sm text-on-surface-variant text-center py-10">No recent activity.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Two-column: Top 5 Biggest Spends + Friend Ledger Summary -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <!-- Top 5 Biggest Spends -->
+            <div id="top-spends-card" class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow flex flex-col">
+              <div class="flex justify-between items-center mb-4 pb-2 border-b border-surface-container-low">
+                <h3 class="text-headline-sm text-primary">Top 5 Biggest Spends</h3>
+                <span class="material-symbols-outlined text-outline">analytics</span>
+              </div>
+              <div id="top5List" class="flex-1">
+                <p class="text-body-sm text-on-surface-variant text-center py-10">No expenses this month yet.</p>
+              </div>
+            </div>
+
+            <!-- Friend Ledger Summary -->
+            <div id="friend-ledger-card" class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow flex flex-col">
+              <div class="flex justify-between items-center mb-4 pb-2 border-b border-surface-container-low">
+                <h3 class="text-headline-sm text-primary">Friend Ledger Summary</h3>
+                <span class="material-symbols-outlined text-outline">group</span>
+              </div>
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="p-3 bg-surface-container-low rounded-lg">
+                  <div class="text-label-md text-on-surface-variant uppercase">Owed to You</div>
+                  <div class="text-headline-sm text-secondary" id="dashOwedToYou">₹0</div>
+                </div>
+                <div class="p-3 bg-surface-container-low rounded-lg">
+                  <div class="text-label-md text-on-surface-variant uppercase">You Owe</div>
+                  <div class="text-headline-sm text-error" id="dashYouOwe">₹0</div>
+                </div>
+              </div>
+              <div id="dashFriendSummaryList" class="space-y-2 flex-1">
+                <p class="text-body-sm text-on-surface-variant text-center py-6">No friend ledger activity yet.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== HISTORY PAGE ===== -->
+        <section class="page" id="page-history">
+          <!-- Header & Filters -->
+          <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h2 class="text-headline-lg text-primary">Transaction History</h2>
+              <p class="text-body-sm text-on-surface-variant mt-1">Review and filter your expenses.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row flex-wrap gap-2 w-full md:w-auto items-stretch sm:items-center">
+              <!-- Search -->
+              <div class="relative group">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[20px]">search</span>
+                <input id="historySearch" class="pl-10 pr-4 py-2 w-full sm:w-48 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" placeholder="Search transactions..." type="text"/>
+              </div>
+
+              <!-- Period Preset Selector -->
+              <div class="relative">
+                <select id="historyPeriod" class="pl-3 pr-8 py-2 w-full sm:w-auto bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all cursor-pointer font-medium">
+                  <option value="last2" selected>🗓️ Last 2 Months</option>
+                  <option value="single">📅 Single Month</option>
+                  <option value="last3">📊 Last 3 Months</option>
+                  <option value="last6">📈 Last 6 Months</option>
+                  <option value="thisYear">📆 This Year</option>
+                  <option value="custom">⚙️ Custom Range...</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+              </div>
+
+              <!-- Single Month Selector (Single Month View) -->
+              <div id="singleMonthBox" class="hidden flex items-center gap-1 bg-surface-container-lowest border border-outline-variant rounded-lg px-2">
+                <button id="prevMonth" class="text-on-surface-variant hover:text-primary p-1 transition-colors"><span class="material-symbols-outlined text-[20px]">chevron_left</span></button>
+                <span id="currentMonthLabel" class="text-body-sm font-medium text-on-surface min-w-[100px] text-center"></span>
+                <button id="nextMonth" class="text-on-surface-variant hover:text-primary p-1 transition-colors"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
+              </div>
+
+              <!-- Custom Month Range Pickers -->
+              <div id="customRangeBox" class="hidden flex items-center gap-1.5 bg-surface-container-lowest border border-outline-variant rounded-lg p-1">
+                <input type="month" id="historyFromMonth" class="px-2 py-1 bg-surface border border-outline-variant rounded text-body-sm focus:outline-none focus:border-primary"/>
+                <span class="text-label-md text-on-surface-variant font-bold">to</span>
+                <input type="month" id="historyToMonth" class="px-2 py-1 bg-surface border border-outline-variant rounded text-body-sm focus:outline-none focus:border-primary"/>
+              </div>
+
+              <!-- Active Period Badge Display -->
+              <div id="activePeriodDisplay" class="flex items-center px-3 py-2 bg-primary/5 border border-primary/20 text-primary rounded-lg text-body-sm font-semibold">
+                <span class="material-symbols-outlined text-[18px] mr-1.5 text-primary">calendar_month</span>
+                <span id="activePeriodText">Jul 2026 – Aug 2026</span>
+              </div>
+
+              <!-- Category Filter -->
+              <div class="relative">
+                <select id="historyCategory" class="pl-4 pr-8 py-2 w-full sm:w-auto bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all cursor-pointer">
+                  <option value="">All Transactions</option>
+                  <option value="friend">👥 Friend Ledger</option>
+                  <option value="food">Food & Dining</option>
+                  <option value="transport">Transport</option>
+                  <option value="shopping">Shopping</option>
+                  <option value="bills">Bills & Utilities</option>
+                  <option value="entertainment">Entertainment</option>
+                  <option value="health">Health</option>
+                  <option value="education">Education</option>
+                  <option value="rent">Rent</option>
+                  <option value="other">Other</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[18px]">filter_list</span>
+              </div>
+            </div>
+          </div>
+          <!-- Data Table -->
+          <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col" style="min-height:350px;">
+            <!-- Table Header -->
+            <div class="grid grid-cols-12 gap-2 px-6 py-3 border-b border-outline-variant bg-surface-container-low text-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10">
+              <div class="col-span-3 sm:col-span-2">Date</div>
+              <div class="col-span-4 sm:col-span-3">Description</div>
+              <div class="hidden sm:block sm:col-span-3">Category</div>
+              <div class="hidden sm:block sm:col-span-2">Actions</div>
+              <div class="col-span-5 sm:col-span-2 text-right">Amount</div>
+            </div>
+            <!-- Table Body -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar" id="historyList">
+              <p class="text-body-sm text-on-surface-variant text-center py-16">No transactions found.</p>
+            </div>
+            <!-- Totals Footer -->
+            <div class="grid grid-cols-12 gap-2 px-6 py-3 border-t border-outline-variant bg-surface mt-auto" id="historySummary">
+              <div class="col-span-7 sm:col-span-10 text-right text-headline-sm text-on-surface">Total:</div>
+              <div class="col-span-5 sm:col-span-2 text-right text-numeric-data text-primary font-bold">₹0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== FRIENDS PAGE ===== -->
+        <section class="page" id="page-friends">
+          <!-- Summary Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+            <div class="md:col-span-12 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h3 class="text-headline-sm text-on-surface">Net Balance</h3>
+                <span class="material-symbols-outlined text-secondary">account_balance</span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span class="text-display-lg tracking-tight" id="netBalance">₹0</span>
+                <span class="text-body-sm text-on-surface-variant">overall</span>
+              </div>
+            </div>
+            <div class="md:col-span-6 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h3 class="text-headline-sm text-on-surface">People Owe You</h3>
+                <span class="material-symbols-outlined text-secondary">call_received</span>
+              </div>
+              <p class="text-headline-lg text-secondary mb-1" id="totalOwedToMe">₹0</p>
+              <p class="text-body-sm text-on-surface-variant" id="owedToMeCount">0 friends</p>
+            </div>
+            <div class="md:col-span-6 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h3 class="text-headline-sm text-on-surface">You Owe People</h3>
+                <span class="material-symbols-outlined text-error">call_made</span>
+              </div>
+              <p class="text-headline-lg text-error mb-1" id="totalIowe">₹0</p>
+              <p class="text-body-sm text-on-surface-variant" id="iOweCount">0 friends</p>
+            </div>
+          </div>
+          <!-- Friends List + Detail -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Friends List -->
+            <div class="md:col-span-4 flex flex-col gap-3">
+              <div class="flex justify-between items-center mb-1">
+                <h3 class="text-headline-sm text-on-surface">Friends Network</h3>
+                <button id="addFriendTxBtn" class="p-1 text-primary hover:bg-surface-container rounded-lg transition-colors" title="Add Transaction">
+                  <span class="material-symbols-outlined">person_add</span>
+                </button>
+              </div>
+              <div id="friendBalances">
+                <p class="text-body-sm text-on-surface-variant text-center py-10">No friends yet.</p>
+              </div>
+            </div>
+            <!-- Friend Detail -->
+            <div class="md:col-span-8">
+              <div id="friendDetail" class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm min-h-[300px] flex flex-col">
+                <div class="flex-1 flex items-center justify-center text-body-md text-on-surface-variant p-10">
+                  <div class="text-center">
+                    <span class="material-symbols-outlined text-[48px] text-outline-variant mb-3 block">group</span>
+                    <p>Select a friend to view details</p>
+                    <p class="text-body-sm mt-1">Or add a new transaction</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== UPCOMING BILLS & REMINDERS PAGE ===== -->
+        <section class="page" id="page-upcoming">
+          <div class="flex flex-col gap-8">
+            <!-- Upcoming Bills Section -->
+            <div>
+              <div class="flex justify-between items-end mb-6">
+                <div>
+                  <h3 class="text-headline-sm text-on-surface">Upcoming Bills</h3>
+                  <p class="text-body-sm text-on-surface-variant mt-0.5">Manage your recurring payments.</p>
+                </div>
+                <button id="addBillBtn" class="bg-surface-container-lowest border border-primary text-primary font-label-md px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-surface-container-low transition-colors">
+                  <span class="material-symbols-outlined text-[16px]">add</span> Add Bill
+                </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="billsGrid">
+                <!-- Bill Cards populated via JS -->
+              </div>
+            </div>
+
+            <!-- Reminders Section -->
+            <div>
+              <div class="flex justify-between items-end mb-4">
+                <div>
+                  <h3 class="text-headline-sm text-on-surface">Reminders</h3>
+                  <p class="text-body-sm text-on-surface-variant mt-0.5">Personal tasks and follow-ups.</p>
+                </div>
+                <button id="addReminderBtn" class="text-primary font-label-md flex items-center gap-1 hover:underline">
+                  <span class="material-symbols-outlined text-[16px]">add</span> New Reminder
+                </button>
+              </div>
+              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm divide-y divide-surface-variant overflow-hidden" id="remindersList">
+                <!-- Reminders populated via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ============== EXPENSE MODAL ============== -->
+  <div class="modal-overlay" id="expenseModal">
+    <div class="modal-box bg-surface rounded-xl border border-outline-variant shadow-lg w-full max-w-lg mx-4 overflow-hidden">
+      <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+        <h3 class="text-headline-sm text-primary" id="expenseFormTitle">Add Expense</h3>
+        <button id="closeExpenseModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="expenseForm" class="p-6" autocomplete="off">
+        <input type="hidden" id="expenseId">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="expenseAmount">Amount (₹)</label>
+            <input type="number" id="expenseAmount" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-numeric-data focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="0" required min="1" step="any"/>
+          </div>
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="expenseDate">Date</label>
+            <input type="date" id="expenseDate" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" required/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="expenseCategory">Category</label>
+            <select id="expenseCategory" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer" required>
+              <option value="">Select category</option>
+              <option value="food">Food & Dining</option>
+              <option value="transport">Transport</option>
+              <option value="shopping">Shopping</option>
+              <option value="bills">Bills & Utilities</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="health">Health</option>
+              <option value="education">Education</option>
+              <option value="rent">Rent</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="expenseDescription">Description</label>
+            <input type="text" id="expenseDescription" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="What was it for?" required/>
+          </div>
+        </div>
+      </form>
+      <div class="px-6 py-4 border-t border-outline-variant flex justify-end gap-3 bg-surface-container-low">
+        <button id="expenseCancelBtn" class="px-4 py-2 rounded-lg text-body-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+        <button id="expenseSubmitBtn" class="bg-primary text-on-primary px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 transition-opacity">Add Expense</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== BUDGET MODAL ============== -->
+  <div class="modal-overlay" id="budgetModal">
+    <div class="modal-box bg-surface rounded-xl border border-outline-variant shadow-lg w-full max-w-sm mx-4 overflow-hidden">
+      <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+        <h3 class="text-headline-sm text-primary">Set Monthly Budget</h3>
+        <button id="closeBudgetModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="p-6">
+        <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="budgetInput">Monthly Budget (₹)</label>
+        <input type="number" id="budgetInput" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-numeric-data focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="Enter your budget" min="0" step="any"/>
+      </div>
+      <div class="px-6 py-4 border-t border-outline-variant flex justify-end gap-3 bg-surface-container-low">
+        <button id="cancelBudget" class="px-4 py-2 rounded-lg text-body-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+        <button id="saveBudget" class="bg-primary text-on-primary px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 transition-opacity">Save Budget</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== FRIEND TRANSACTION MODAL ============== -->
+  <div class="modal-overlay" id="friendModal">
+    <div class="modal-box bg-surface rounded-xl border border-outline-variant shadow-lg w-full max-w-lg mx-4 overflow-hidden">
+      <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+        <h3 class="text-headline-sm text-primary" id="friendFormTitle">Add Friend Transaction</h3>
+        <button id="closeFriendModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="friendForm" class="p-6 space-y-4" autocomplete="off">
+        <input type="hidden" id="friendTxId">
+
+        <!-- Row 1: Friend Name & Amount -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="friendName">Friend's Name</label>
+            <input type="text" id="friendName" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="Enter name" required list="friendSuggestions"/>
+            <datalist id="friendSuggestions"></datalist>
+          </div>
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="friendAmount">Amount (₹)</label>
+            <input type="number" id="friendAmount" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-numeric-data focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="0" required min="1" step="any"/>
+          </div>
+        </div>
+
+        <!-- Row 2: Segmented Transaction Type Selector (Full Width) -->
+        <div>
+          <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5">Transaction Type</label>
+          <div class="grid grid-cols-2 gap-2 bg-surface-container-low p-1 rounded-xl border border-outline-variant">
+            <button type="button" id="typeGiven" class="w-full py-2.5 px-3 rounded-lg text-body-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 border border-error bg-white text-error shadow-sm">
+              <span>💸 I Gave</span>
+            </button>
+            <button type="button" id="typeTaken" class="w-full py-2.5 px-3 rounded-lg text-body-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 border border-transparent text-on-surface-variant hover:text-primary">
+              <span>💰 I Received</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Row 3: Reason / Note -->
+        <div>
+          <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="friendReason">Reason / Note</label>
+          <input type="text" id="friendReason" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="e.g. Lunch bill, Trip share, Petrol" required/>
+        </div>
+
+        <!-- Row 4: Transaction Date & Settlement Date -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="friendDate">Transaction Date</label>
+            <input type="date" id="friendDate" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" required/>
+          </div>
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="friendDueDate">
+              Settlement Date <span class="text-secondary font-normal lowercase">(auto-reminder)</span>
+            </label>
+            <input type="date" id="friendDueDate" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="When to settle?"/>
+          </div>
+        </div>
+      </form>
+      <div class="px-6 py-4 border-t border-outline-variant flex justify-end gap-3 bg-surface-container-low">
+        <button id="friendCancelBtn" class="px-4 py-2 rounded-lg text-body-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+        <button id="friendSubmitBtn" class="bg-primary text-on-primary px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 transition-opacity">Add Transaction</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== CONFIRM DIALOG ============== -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box bg-surface rounded-xl border border-outline-variant shadow-lg w-full max-w-sm mx-4 overflow-hidden">
+      <div class="p-6 border-b border-outline-variant">
+        <h3 class="text-headline-sm text-on-surface" id="confirmTitle">Confirm</h3>
+      </div>
+      <div class="p-6">
+        <p class="text-body-md text-on-surface-variant" id="confirmMessage">Are you sure?</p>
+      </div>
+      <div class="px-6 py-4 border-t border-outline-variant flex justify-end gap-3">
+        <button id="confirmNo" class="px-4 py-2 rounded-lg text-body-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+        <button id="confirmYes" class="bg-error text-on-error px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 transition-opacity">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== BILL MODAL ============== -->
+  <div class="modal-overlay" id="billModal">
+    <div class="modal-box bg-surface rounded-xl border border-outline-variant shadow-lg w-full max-w-lg mx-4 overflow-hidden">
+      <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+        <h3 class="text-headline-sm text-primary" id="billFormTitle">Add Bill</h3>
+        <button id="closeBillModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="billForm" class="p-6" autocomplete="off">
+        <input type="hidden" id="billId">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="billTitle">Bill Name</label>
+            <input type="text" id="billTitle" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="e.g. Rent, Electricity" required/>
+          </div>
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="billAmount">Amount (₹)</label>
+            <input type="number" id="billAmount" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-numeric-data focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="0" required min="1" step="any"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="billDueDate">Due Date / Info</label>
+            <input type="text" id="billDueDate" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="e.g. Due in 3 days, Due Oct 15" required/>
+          </div>
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="billIcon">Icon</label>
+            <select id="billIcon" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer">
+              <option value="home">🏠 Home / Rent</option>
+              <option value="bolt">⚡ Electricity</option>
+              <option value="wifi">🌐 Internet / Wifi</option>
+              <option value="water_drop">💧 Water</option>
+              <option value="phone_iphone">📱 Mobile / Phone</option>
+              <option value="directions_car">🚗 Car / Insurance</option>
+              <option value="receipt_long">📄 General Utility</option>
+            </select>
+          </div>
+        </div>
+      </form>
+      <div class="px-6 py-4 border-t border-outline-variant flex justify-end gap-3 bg-surface-container-low">
+        <button id="billCancelBtn" class="px-4 py-2 rounded-lg text-body-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+        <button id="billSubmitBtn" class="bg-primary text-on-primary px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 transition-opacity">Save Bill</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== REMINDER MODAL ============== -->
+  <div class="modal-overlay" id="reminderModal">
+    <div class="modal-box bg-surface rounded-xl border border-outline-variant shadow-lg w-full max-w-lg mx-4 overflow-hidden">
+      <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+        <h3 class="text-headline-sm text-primary" id="reminderFormTitle">New Reminder</h3>
+        <button id="closeReminderModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="reminderForm" class="p-6 space-y-4" autocomplete="off">
+        <input type="hidden" id="reminderId">
+        <div>
+          <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="reminderText">Task Description</label>
+          <input type="text" id="reminderText" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="e.g. Pay Sarah for dinner" required/>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="reminderCategory">Category</label>
+            <select id="reminderCategory" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all">
+              <option value="Personal">Personal</option>
+              <option value="Finance & Bills">Finance & Bills</option>
+              <option value="Work & Office">Work & Office</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Health & Fitness">Health & Fitness</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="reminderPriority">Priority</label>
+            <select id="reminderPriority" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all">
+              <option value="Medium">🟡 Medium</option>
+              <option value="High">🔴 High Priority</option>
+              <option value="Low">🟢 Low Priority</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="reminderDue">Due Date / Time</label>
+          <input type="text" id="reminderDue" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="e.g. Today, 5:00 PM or Oct 15" required/>
+        </div>
+      </form>
+      <div class="px-6 py-4 border-t border-outline-variant flex justify-end gap-3 bg-surface-container-low">
+        <button id="reminderCancelBtn" class="px-4 py-2 rounded-lg text-body-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+        <button id="reminderSubmitBtn" class="bg-primary text-on-primary px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 transition-opacity">Save Reminder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== DATABASE & BACKUP MODAL ============== -->
+  <div class="modal-overlay" id="dbModal">
+    <div class="modal-box bg-surface rounded-xl border border-outline-variant shadow-lg w-full max-w-lg mx-4 overflow-hidden">
+      <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary">database</span>
+          <h3 class="text-headline-sm text-primary">Database & Backup</h3>
+        </div>
+        <button id="closeDbModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="p-6 space-y-6">
+        <!-- Database Info -->
+        <div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant">
+          <h4 class="text-body-md font-semibold text-primary mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px] text-secondary">verified_user</span> Local Storage Database Status
+          </h4>
+          <p class="text-body-sm text-on-surface-variant">Your data is stored safely in your browser. Download a backup file anytime so you never lose your records.</p>
+          <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+            <div class="bg-surface p-2 rounded-lg border border-outline-variant">
+              <div class="text-headline-sm text-primary" id="dbCountExpenses">0</div>
+              <div class="text-label-md text-on-surface-variant">Expenses</div>
+            </div>
+            <div class="bg-surface p-2 rounded-lg border border-outline-variant">
+              <div class="text-headline-sm text-primary" id="dbCountFriends">0</div>
+              <div class="text-label-md text-on-surface-variant">Friend Txs</div>
+            </div>
+            <div class="bg-surface p-2 rounded-lg border border-outline-variant">
+              <div class="text-headline-sm text-primary" id="dbCountBills">0</div>
+              <div class="text-label-md text-on-surface-variant">Bills</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Backup -->
+        <div class="border border-outline-variant p-4 rounded-xl bg-surface-container-lowest">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h4 class="text-body-md font-semibold text-primary">Download Backup File</h4>
+              <p class="text-body-sm text-on-surface-variant">Export complete database (.json) to your computer</p>
+            </div>
+            <button id="downloadDbJsonBtn" class="bg-primary text-on-primary px-4 py-2 rounded-lg text-body-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-1 flex-shrink-0">
+              <span class="material-symbols-outlined text-[18px]">download</span> Export JSON
+            </button>
+          </div>
+        </div>
+
+        <!-- Import / Restore -->
+        <div class="border border-outline-variant p-4 rounded-xl bg-surface-container-lowest">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h4 class="text-body-md font-semibold text-primary">Restore from Backup</h4>
+              <p class="text-body-sm text-on-surface-variant">Upload a previously saved .json database file</p>
+            </div>
+            <label class="bg-surface-container border border-primary text-primary px-4 py-2 rounded-lg text-body-sm font-medium hover:bg-surface-container-high transition-colors flex items-center gap-1 cursor-pointer flex-shrink-0">
+              <span class="material-symbols-outlined text-[18px]">upload</span> Restore JSON
+              <input type="file" id="importDbJsonInput" accept=".json" class="hidden"/>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-outline-variant flex justify-between items-center bg-surface-container-low">
+        <button id="resetAllDataBtn" class="text-error hover:underline text-body-sm font-medium flex items-center gap-1">
+          <span class="material-symbols-outlined text-[18px]">delete_forever</span> Reset Database
+        </button>
+        <button id="closeDbModalFooter" class="px-4 py-2 rounded-lg text-body-md text-on-surface-variant hover:bg-surface-container transition-colors">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
