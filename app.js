@@ -1008,8 +1008,10 @@ function exportCSV() {
 // ===== EVENT LISTENERS =====
 document.addEventListener('DOMContentLoaded', () => {
   // Date display
-  const now = new Date();
-  $('#currentDate').textContent = now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  if ($('#currentDate')) {
+    const now = new Date();
+    $('#currentDate').textContent = now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
 
   viewMonth = getCurrentMonthStr();
   navigateTo('dashboard');
@@ -1023,14 +1025,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Mobile sidebar
-  $('#menuToggle').addEventListener('click', () => {
-    $('#sidebar').classList.toggle('open');
-    $('#sidebarOverlay').classList.toggle('active');
-  });
-  $('#sidebarOverlay').addEventListener('click', () => {
-    $('#sidebar').classList.remove('open');
-    $('#sidebarOverlay').classList.remove('active');
-  });
+  if ($('#menuToggle')) {
+    $('#menuToggle').addEventListener('click', () => {
+      if ($('#sidebar')) $('#sidebar').classList.toggle('open');
+      if ($('#sidebarOverlay')) $('#sidebarOverlay').classList.toggle('active');
+    });
+  }
+  if ($('#sidebarOverlay')) {
+    $('#sidebarOverlay').addEventListener('click', () => {
+      if ($('#sidebar')) $('#sidebar').classList.remove('open');
+      if ($('#sidebarOverlay')) $('#sidebarOverlay').classList.remove('active');
+    });
+  }
 
   // Add Expense buttons
   $('#sidebarAddBtn').addEventListener('click', () => openExpenseModal());
