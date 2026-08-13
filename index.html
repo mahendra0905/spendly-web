@@ -109,6 +109,12 @@
           <span class="text-body-md font-medium">Upcoming</span>
         </a>
       </li>
+      <li>
+        <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200 active:scale-95 text-on-surface-variant hover:text-primary hover:bg-surface-container-low" data-page="settings">
+          <span class="material-symbols-outlined">settings</span>
+          <span class="text-body-md font-medium">Settings</span>
+        </a>
+      </li>
     </ul>
     <!-- Bottom CTA -->
     <div class="mt-auto pt-6 border-t border-outline-variant">
@@ -460,6 +466,197 @@
                 <!-- Reminders populated via JS -->
               </div>
             </div>
+          </div>
+        </section>
+
+        <!-- ===== SETTINGS PAGE ===== -->
+        <section class="page" id="page-settings">
+          <div class="mb-6">
+            <h2 class="text-headline-lg text-primary">Settings & Preferences</h2>
+            <p class="text-body-sm text-on-surface-variant mt-1">Manage your account, preferences, database backups, and app settings.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Left 2 Cols: Main Settings Sections -->
+            <div class="lg:col-span-2 space-y-6">
+
+              <!-- User Profile & Preferences -->
+              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-surface-container-low">
+                  <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">person</span>
+                  </div>
+                  <div>
+                    <h3 class="text-headline-sm text-primary">Profile & Regional Preferences</h3>
+                    <p class="text-body-sm text-on-surface-variant">Personalize your display name and currency format.</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="settingsUserName">Your Display Name</label>
+                    <input type="text" id="settingsUserName" class="w-full px-3.5 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="Enter your name"/>
+                  </div>
+                  <div>
+                    <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="settingsCurrency">Currency Symbol</label>
+                    <select id="settingsCurrency" class="w-full px-3.5 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer">
+                      <option value="₹" selected>₹ (INR - Indian Rupee)</option>
+                      <option value="$">$ (USD - US Dollar)</option>
+                      <option value="€">€ (EUR - Euro)</option>
+                      <option value="£">£ (GBP - British Pound)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mt-4 flex justify-end">
+                  <button id="saveProfileSettingsBtn" class="bg-primary text-on-primary px-5 py-2 rounded-lg text-body-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px]">save</span> Save Profile
+                  </button>
+                </div>
+              </div>
+
+              <!-- Notifications & Alert Rules -->
+              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-surface-container-low">
+                  <div class="w-10 h-10 rounded-full bg-secondary/10 text-secondary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">notifications_active</span>
+                  </div>
+                  <div>
+                    <h3 class="text-headline-sm text-primary">Notification & Alert Rules</h3>
+                    <p class="text-body-sm text-on-surface-variant">Configure automatic in-app alerts and reminders.</p>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between py-2 border-b border-surface-container-low">
+                    <div>
+                      <p class="text-body-md font-semibold text-primary">1-Day Prior Settlement Alerts</p>
+                      <p class="text-body-sm text-on-surface-variant">Get notified 1 day before friend dues and settlement dates.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="toggleNotifFriend" checked class="sr-only peer">
+                      <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+                    </label>
+                  </div>
+
+                  <div class="flex items-center justify-between py-2 border-b border-surface-container-low">
+                    <div>
+                      <p class="text-body-md font-semibold text-primary">Budget Limit Exceeded Warnings</p>
+                      <p class="text-body-sm text-on-surface-variant">Show alert badge when total monthly spending crosses budget limit.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="toggleNotifBudget" checked class="sr-only peer">
+                      <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+                    </label>
+                  </div>
+
+                  <div class="flex items-center justify-between py-2">
+                    <div>
+                      <p class="text-body-md font-semibold text-primary">Bill Due Reminders</p>
+                      <p class="text-body-sm text-on-surface-variant">Include upcoming bill due dates in Notification Center.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="toggleNotifBills" checked class="sr-only peer">
+                      <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Data Storage & Backup Center -->
+              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-surface-container-low">
+                  <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">database</span>
+                  </div>
+                  <div>
+                    <h3 class="text-headline-sm text-primary">Data Backup & Storage Center</h3>
+                    <p class="text-body-sm text-on-surface-variant">Export, restore, or reset your local browser IndexedDB data.</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                  <button id="settingsExportJsonBtn" class="px-4 py-3 bg-surface-container-low border border-outline-variant hover:border-primary rounded-xl text-body-sm font-semibold text-primary transition-all flex flex-col items-center justify-center gap-1.5 group">
+                    <span class="material-symbols-outlined text-[24px] text-primary group-hover:scale-110 transition-transform">download</span>
+                    <span>Backup (.JSON)</span>
+                  </button>
+
+                  <label class="px-4 py-3 bg-surface-container-low border border-outline-variant hover:border-primary rounded-xl text-body-sm font-semibold text-primary transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer group">
+                    <span class="material-symbols-outlined text-[24px] text-secondary group-hover:scale-110 transition-transform">upload</span>
+                    <span>Restore Backup</span>
+                    <input type="file" id="settingsImportJsonInput" accept=".json" class="hidden"/>
+                  </label>
+
+                  <button id="settingsExportCsvBtn" class="px-4 py-3 bg-surface-container-low border border-outline-variant hover:border-primary rounded-xl text-body-sm font-semibold text-primary transition-all flex flex-col items-center justify-center gap-1.5 group">
+                    <span class="material-symbols-outlined text-[24px] text-primary group-hover:scale-110 transition-transform">table_chart</span>
+                    <span>Export (.CSV)</span>
+                  </button>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="p-4 bg-error-container/30 border border-error/30 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div>
+                    <p class="text-body-sm font-bold text-error">Danger Zone: Reset Database</p>
+                    <p class="text-[12px] text-on-surface-variant mt-0.5">Permanently delete all expenses, friends, bills, and reminders from IndexedDB.</p>
+                  </div>
+                  <button id="settingsResetDbBtn" class="bg-error text-white px-4 py-2 rounded-lg text-body-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[16px]">delete_forever</span> Reset Data
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right Col: App Info & Quick Stats Card -->
+            <div class="space-y-6">
+
+              <!-- App Info Card -->
+              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm text-center">
+                <img src="logo_brand.png" alt="Spendly Logo" class="h-12 w-auto object-contain mx-auto mb-3"/>
+                <p class="text-headline-sm font-extrabold text-primary">Spendly</p>
+                <p class="text-label-md text-on-surface-variant mt-0.5">Know where it goes</p>
+
+                <div class="mt-4 pt-4 border-t border-surface-container-low space-y-2 text-left text-body-sm">
+                  <div class="flex justify-between">
+                    <span class="text-on-surface-variant">App Version:</span>
+                    <strong class="text-primary font-semibold">v1.0 (Web)</strong>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-on-surface-variant">Storage Engine:</span>
+                    <strong class="text-primary font-semibold">IndexedDB</strong>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-on-surface-variant">Server Status:</span>
+                    <strong class="text-secondary font-semibold">100% Offline / Local</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Storage Stats Summary -->
+              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+                <h4 class="text-label-md text-on-surface-variant uppercase tracking-wider mb-4 font-bold">Storage Summary</h4>
+                <div class="space-y-3">
+                  <div class="flex justify-between items-center py-1.5 border-b border-surface-container-low">
+                    <span class="text-body-sm text-on-surface">Total Expenses</span>
+                    <span id="statCountExpenses" class="text-body-sm font-bold text-primary">0</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1.5 border-b border-surface-container-low">
+                    <span class="text-body-sm text-on-surface">Friend Transactions</span>
+                    <span id="statCountFriends" class="text-body-sm font-bold text-primary">0</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1.5 border-b border-surface-container-low">
+                    <span class="text-body-sm text-on-surface">Upcoming Bills</span>
+                    <span id="statCountBills" class="text-body-sm font-bold text-primary">0</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1.5">
+                    <span class="text-body-sm text-on-surface">Active Reminders</span>
+                    <span id="statCountReminders" class="text-body-sm font-bold text-primary">0</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
           </div>
         </section>
 

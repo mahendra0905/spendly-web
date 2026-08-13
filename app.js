@@ -317,7 +317,7 @@ function navigateTo(page) {
   const target = $(`#page-${page}`);
   if (target) target.classList.add('active');
   // Update title
-  const titles = { dashboard: 'Dashboard', history: 'Transaction History', friends: 'Friends & Debts', upcoming: 'Upcoming Bills & Reminders' };
+  const titles = { dashboard: 'Dashboard', history: 'Transaction History', friends: 'Friends & Debts', upcoming: 'Upcoming Bills & Reminders', settings: 'Settings & Preferences' };
   $('#pageTitle').textContent = titles[page] || 'Spendly';
   // Render
   renderPage(page);
@@ -331,6 +331,7 @@ function renderPage(page) {
     case 'history': renderHistory(); break;
     case 'friends': renderFriends(); break;
     case 'upcoming': renderUpcoming(); break;
+    case 'settings': renderSettings(); break;
   }
 }
 
@@ -1729,8 +1730,108 @@ function setupNotificationListeners() {
   renderNotifications();
 }
 
-// Attach notification initialization to DOMContentLoaded
+/* ========================================
+   SETTINGS PAGE LOGIC
+   ======================================== */
+function renderSettings() {
+  const savedName = localStorage.getItem('spendly_user_name') || '';
+  const savedCurrency = localStorage.getItem('spendly_user_currency') || '₹';
+
+  if ($('#settingsUserName')) $('#settingsUserName').value = savedName;
+  if ($('#settingsCurrency')) $('#settingsCurrency').value = savedCurrency;
+
+  // Storage Stats Summary
+  const expenses = getExpenses();
+  const friends = getFriendTransactions();
+  const bills = getBills();
+  const reminders = getReminders();
+
+  if ($('#statCountExpenses')) $('#statCountExpenses').textContent = expenses.length;
+  if ($('#statCountFriends')) $('#statCountFriends').textContent = friends.length;
+  if ($('#statCountBills')) $('#statCountBills').textContent = bills.length;
+  if ($('#statCountReminders')) $('#statCountReminders').textContent = reminders.length;
+}
+
+function setupSettingsListeners() {
+  // Save profile settings
+  const saveProfileBtn = $('#saveProfileSettingsBtn');
+  if (saveProfileBtn) {
+    saveProfileBtn.addEventListener('click', () => {
+      const nameVal = $('#settingsUserName') ? $('#settingsUserName').value.trim() : '';
+      const currencyVal = $('#settingsCurrency') ? $('#settingsCurrency').value : '₹';
+
+      localStorage.setItem('spendly_user_name', nameVal);
+      localStorage.setItem('spendly_user_currency', currencyVal);
+
+      showToast('Profile & Currency settings saved!');
+      renderSettings();
+      if (currentPage === 'dashboard') renderDashboard();
+    });
+  }
+
+  // Settings Data Center Buttons
+  if ($('#settingsExportJsonBtn')) $('#settingsExportJsonBtn').addEventListener('click', exportDatabaseJSON);
+  if ($('#settingsExportCsvBtn')) $('#settingsExportCsvBtn').addEventListener('click', exportCSV);
+  if ($('#settingsResetDbBtn')) $('#settingsResetDbBtn').addEventListener('click', resetDatabase);
+
+  // Restore JSON Backup File
+  const importInput = $('#settingsImportJsonInput');
+  if (importInput) {
+    importInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        try {
+          const importedData = JSON.parse(evt.target.result);
+          if (importedData && (importedData.expenses || importedData.budget)) {
+            showConfirm('Restore Database Backup', 'WARNING: This will overwrite your current IndexedDB data with the backup file. Continue?', async () => {
+              if (importedData.expenses) {
+                await idbClear('expenses');
+                for (const item of importedData.expenses) await idbPut('expenses', item);
+                state.expenses = importedData.expenses;
+              }
+              if (importedData.friends) {
+                await idbClear('friends');
+                for (const item of importedData.friends) await idbPut('friends', item);
+                state.friends = importedData.friends;
+              }
+              if (importedData.bills) {
+                await idbClear('bills');
+                for (const item of importedData.bills) await idbPut('bills', item);
+                state.bills = importedData.bills;
+              }
+              if (importedData.reminders) {
+                await idbClear('reminders');
+                for (const item of importedData.reminders) await idbPut('reminders', item);
+                state.reminders = importedData.reminders;
+              }
+              if (importedData.budget) {
+                await idbClear('budget');
+                await idbPut('budget', { key: 'main', amount: importedData.budget.amount || 0 });
+                state.budget = importedData.budget;
+              }
+              showToast('Database backup restored successfully!');
+              renderPage(currentPage);
+            });
+          } else {
+            showToast('Invalid backup JSON file structure!', 'error');
+          }
+        } catch (err) {
+          showToast('Failed to read backup file!', 'error');
+        }
+      };
+      reader.readAsText(file);
+    });
+  }
+}
+
+// Attach listeners to DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(setupNotificationListeners, 300);
+  setTimeout(() => {
+    setupNotificationListeners();
+    setupSettingsListeners();
+  }, 300);
 });
 
