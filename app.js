@@ -2377,10 +2377,262 @@ function exportPDF() {
   }, 500);
 }
 
+// ===== VERSION CONTROL SYSTEM =====
+const APP_VERSION = 'v1.0.2';
+const APP_CHANGELOG = [
+  {
+    version: 'v1.0.2',
+    date: '14 Aug 2026',
+    badge: 'Latest Release',
+    isCurrent: true,
+    summary: 'Interactive Changelog Engine, Universal Version Triggers, & Category Filtering',
+    changes: [
+      { type: 'feature', title: 'Universal Version Triggers', text: 'Clicking the sidebar version badge, settings version row, or header badge now opens the Changelog Modal instantly.' },
+      { type: 'feature', title: 'Interactive Search & Filters', text: 'Real-time search bar and category pill filter (Features, Improvements, Fixes) inside the Changelog modal.' },
+      { type: 'improvement', title: 'Copy Release Notes & Update Action', text: 'Added one-click "Copy Release Notes" to clipboard and simulated "Check for Updates" functionality.' },
+      { type: 'ui', title: 'Color-Coded Tag Badges', text: 'Release items are visually categorized with Feature, Improvement, Fix, and UI/UX badges.' }
+    ]
+  },
+  {
+    version: 'v1.0.1',
+    date: '14 Aug 2026',
+    badge: 'Maintenance',
+    isCurrent: false,
+    summary: 'Automated Version Control System, Hairline Divider Layout, & Email Support Integration',
+    changes: [
+      { type: 'feature', title: 'App Info & Support Integration', text: 'Direct email support, contact modal, and feedback preview modal integration.' },
+      { type: 'improvement', title: 'Flat Hairline Divider Refactor', text: 'Polished hairline borders and clean spacing across Settings and Expense views.' },
+      { type: 'fix', title: 'Description Fallback', text: 'Default fallback to "Other" category for transactions submitted with blank notes.' }
+    ]
+  },
+  {
+    version: 'v1.0.0',
+    date: '12 Aug 2026',
+    badge: 'Major Release',
+    isCurrent: false,
+    summary: 'Official Initial Release of Spendly Finance Terminal with Offline IndexedDB Engine',
+    changes: [
+      { type: 'feature', title: 'Browser-Native IndexedDB Engine', text: 'Full offline local database with instant persistence for transactions and analytics.' },
+      { type: 'feature', title: 'Friend Ledger & Bill Splitter', text: 'Track who owes you money and manage debt ledgers with friend balance summaries.' },
+      { type: 'feature', title: 'Recurring Bills & Budgeting', text: 'Budget limit alerts, bill reminders, and monthly spending insights.' }
+    ]
+  }
+];
+
+let currentChangelogFilter = 'all';
+let currentChangelogSearch = '';
+
+function initVersionControl() {
+  const storedVersion = localStorage.getItem('spendly_app_version');
+
+  // Update UI Badges dynamically
+  if ($('#appInfoVersionBadge')) $('#appInfoVersionBadge').textContent = APP_VERSION;
+  if ($('#sidebarVersionBadge')) $('#sidebarVersionBadge').textContent = APP_VERSION;
+  if ($('#currentVersionPill')) $('#currentVersionPill').textContent = APP_VERSION;
+  if ($('#changelogStatusText')) $('#changelogStatusText').textContent = `You are on the latest build (${APP_VERSION})`;
+
+  // Check version bump toast notification
+  if (storedVersion !== APP_VERSION) {
+    localStorage.setItem('spendly_app_version', APP_VERSION);
+    if (storedVersion) {
+      setTimeout(() => {
+        showToast(`✨ Spendly updated to ${APP_VERSION}! Click version tag to view changelog.`, 'info');
+      }, 1000);
+    }
+  }
+
+  // Bind click triggers for Version History & Changelog Modal
+  const triggers = [$('#appInfoVersionRow'), $('#sidebarVersionBadge')];
+  triggers.forEach(el => {
+    if (el) {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        openVersionHistoryModal();
+      });
+    }
+  });
+
+  // Modal close buttons
+  if ($('#closeVersionHistoryModal')) $('#closeVersionHistoryModal').addEventListener('click', closeVersionHistoryModal);
+  if ($('#closeVersionHistoryBtn')) $('#closeVersionHistoryBtn').addEventListener('click', closeVersionHistoryModal);
+  if ($('#versionHistoryModal')) {
+    $('#versionHistoryModal').addEventListener('click', (e) => {
+      if (e.target === $('#versionHistoryModal')) closeVersionHistoryModal();
+    });
+  }
+
+  // Check for updates action helper
+  const handleCheckUpdates = () => {
+    const btn = $('#checkUpdatesBtn');
+    const icon = btn ? btn.querySelector('.material-symbols-outlined') : null;
+    if (icon) icon.classList.add('animate-spin');
+    if (btn) btn.disabled = true;
+
+    showToast('🔍 Checking for app updates...', 'info');
+    setTimeout(() => {
+      if (icon) icon.classList.remove('animate-spin');
+      if (btn) btn.disabled = false;
+      showToast(`✅ Spendly ${APP_VERSION} is currently up to date!`, 'success');
+    }, 800);
+  };
+
+  if ($('#checkUpdatesBtn')) $('#checkUpdatesBtn').addEventListener('click', handleCheckUpdates);
+  if ($('#appInfoCheckUpdatesRow')) $('#appInfoCheckUpdatesRow').addEventListener('click', handleCheckUpdates);
+
+  // Copy Changelog listener
+  if ($('#copyChangelogBtn')) {
+    $('#copyChangelogBtn').addEventListener('click', copyChangelogToClipboard);
+  }
+
+  // Search input listener inside changelog
+  const searchInput = $('#changelogSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      currentChangelogSearch = e.target.value.toLowerCase().trim();
+      renderChangelogList();
+    });
+  }
+
+  // Filter Pills listener
+  const filterPillsContainer = $('#changelogFilterPills');
+  if (filterPillsContainer) {
+    filterPillsContainer.addEventListener('click', (e) => {
+      const pill = e.target.closest('.changelog-filter-pill');
+      if (!pill) return;
+
+      filterPillsContainer.querySelectorAll('.changelog-filter-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+
+      currentChangelogFilter = pill.dataset.filter || 'all';
+      renderChangelogList();
+    });
+  }
+}
+
+function openVersionHistoryModal() {
+  const modal = $('#versionHistoryModal');
+  if (!modal) return;
+
+  // Reset filters on open
+  currentChangelogFilter = 'all';
+  currentChangelogSearch = '';
+  if ($('#changelogSearchInput')) $('#changelogSearchInput').value = '';
+  if ($('#changelogFilterPills')) {
+    $('#changelogFilterPills').querySelectorAll('.changelog-filter-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.filter === 'all');
+    });
+  }
+
+  renderChangelogList();
+  modal.classList.add('active');
+}
+
+function renderChangelogList() {
+  const container = $('#versionHistoryList');
+  if (!container) return;
+
+  let totalFilteredCount = 0;
+
+  const html = APP_CHANGELOG.map(rel => {
+    // Filter changes inside release
+    const matchingChanges = rel.changes.filter(item => {
+      const matchesFilter = (currentChangelogFilter === 'all') || (item.type === currentChangelogFilter);
+      const matchesSearch = !currentChangelogSearch || 
+        item.title.toLowerCase().includes(currentChangelogSearch) || 
+        item.text.toLowerCase().includes(currentChangelogSearch) ||
+        rel.version.toLowerCase().includes(currentChangelogSearch) ||
+        rel.summary.toLowerCase().includes(currentChangelogSearch);
+
+      return matchesFilter && matchesSearch;
+    });
+
+    if (matchingChanges.length === 0) return '';
+    totalFilteredCount += matchingChanges.length;
+
+    const changesListHtml = matchingChanges.map(c => {
+      let tagClass = 'changelog-tag-feature';
+      let tagLabel = 'FEATURE';
+      if (c.type === 'improvement') { tagClass = 'changelog-tag-improvement'; tagLabel = 'IMPROVEMENT'; }
+      else if (c.type === 'fix') { tagClass = 'changelog-tag-fix'; tagLabel = 'BUG FIX'; }
+      else if (c.type === 'ui') { tagClass = 'changelog-tag-ui'; tagLabel = 'UI/UX'; }
+
+      return `
+        <li class="flex items-start gap-2.5 text-body-sm text-on-surface">
+          <span class="changelog-tag ${tagClass} mt-0.5">${tagLabel}</span>
+          <div class="flex-1 min-w-0">
+            <span class="font-bold text-primary">${escapeHtml(c.title)}:</span> 
+            <span class="text-on-surface-variant">${escapeHtml(c.text)}</span>
+          </div>
+        </li>
+      `;
+    }).join('');
+
+    const currentBadge = rel.isCurrent 
+      ? `<span class="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800">Current</span>`
+      : `<span class="text-[10px] uppercase font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full border border-outline-variant/40">${rel.badge}</span>`;
+
+    return `
+      <div class="p-4 rounded-2xl border border-outline-variant/60 bg-surface-container-low/40 space-y-3 shadow-sm transition-all hover:border-primary/30">
+        <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-outline-variant/30">
+          <div class="flex items-center gap-2">
+            <span class="text-body-md font-extrabold text-primary bg-secondary-container/50 px-3 py-1 rounded-xl border border-secondary-container">${rel.version}</span>
+            ${currentBadge}
+          </div>
+          <span class="text-label-md text-on-surface-variant font-medium flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+            ${rel.date}
+          </span>
+        </div>
+
+        <p class="text-body-sm font-semibold text-primary/90 italic bg-surface-container/30 p-2 rounded-lg border border-outline-variant/20">${escapeHtml(rel.summary)}</p>
+
+        <ul class="space-y-2.5 pt-1">
+          ${changesListHtml}
+        </ul>
+      </div>
+    `;
+  }).filter(Boolean).join('');
+
+  if (!html) {
+    container.innerHTML = `
+      <div class="text-center py-10 px-4 space-y-2">
+        <span class="material-symbols-outlined text-[36px] text-on-surface-variant opacity-60">search_off</span>
+        <p class="text-body-md font-bold text-primary">No changelog matches found</p>
+        <p class="text-body-sm text-on-surface-variant">Try searching for something else or clearing filters.</p>
+      </div>
+    `;
+  } else {
+    container.innerHTML = html;
+  }
+}
+
+function closeVersionHistoryModal() {
+  const modal = $('#versionHistoryModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function copyChangelogToClipboard() {
+  const notesText = APP_CHANGELOG.map(rel => {
+    const changes = rel.changes.map(c => ` - [${c.type.toUpperCase()}] ${c.title}: ${c.text}`).join('\n');
+    return `Spendly ${rel.version} (${rel.date}):\nSummary: ${rel.summary}\n${changes}`;
+  }).join('\n\n');
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(notesText).then(() => {
+      showToast('📋 Changelog release notes copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast('Failed to copy to clipboard', 'error');
+    });
+  } else {
+    showToast('Clipboard API not supported in this browser', 'warning');
+  }
+}
+
 // Attach listeners to DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
   applyAppearanceSettings();
   updateSidebarProfile();
+  initVersionControl();
 
   const sidebarProfile = $('#sidebarUserProfile');
   if (sidebarProfile) {
