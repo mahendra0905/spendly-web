@@ -318,7 +318,7 @@ function navigateTo(page) {
   if (target) target.classList.add('active');
   // Update title
   const titles = { dashboard: 'Dashboard', history: 'Transaction History', friends: 'Friends & Debts', upcoming: 'Upcoming Bills & Reminders', settings: 'Settings & Preferences' };
-  $('#pageTitle').textContent = titles[page] || 'Spendly';
+  if ($('#pageTitle')) $('#pageTitle').textContent = titles[page] || 'Spendly';
   // Render
   renderPage(page);
   // Close mobile sidebar
