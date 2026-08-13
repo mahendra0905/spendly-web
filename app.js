@@ -1184,7 +1184,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Export
-  $('#exportBtn').addEventListener('click', exportCSV);
+  if ($('#exportBtn')) $('#exportBtn').addEventListener('click', exportCSV);
+  if ($('#dbModalBtn')) $('#dbModalBtn').addEventListener('click', openDbModal);
 
   // Bill Modal handlers
   $('#addBillBtn').addEventListener('click', () => openBillModal());
