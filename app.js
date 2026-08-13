@@ -802,9 +802,9 @@ function applyHistoryFilters() {
   container.innerHTML = filtered.map(t => {
     const isFriend = t.txType === 'friend';
     return `
-      <div class="grid grid-cols-12 gap-2 px-6 py-3 border-b border-[#F1F5F9] row-hover items-center transition-colors group cursor-pointer">
-        <div class="col-span-3 sm:col-span-2 text-body-sm text-on-surface-variant">${formatDateShort(t.date)}</div>
-        <div class="col-span-4 sm:col-span-3 text-body-md text-on-surface font-medium truncate flex items-center gap-1.5">
+      <div class="grid grid-cols-12 gap-2 px-6 py-3 border-b border-[#F1F5F9] row-hover items-center transition-colors">
+        <div class="col-span-3 sm:col-span-2 text-body-sm text-on-surface-variant font-medium">${formatDateShort(t.date)}</div>
+        <div class="col-span-5 sm:col-span-5 text-body-md text-on-surface font-medium truncate flex items-center gap-1.5">
           ${isFriend ? `<span class="material-symbols-outlined text-[16px] ${t.friendType === 'given' ? 'text-secondary' : 'text-error'}">group</span>` : ''}
           <span class="truncate">${escapeHtml(t.displayTitle)}</span>
         </div>
@@ -812,24 +812,7 @@ function applyHistoryFilters() {
           <span class="material-symbols-outlined text-[16px]">${t.icon}</span>
           <span class="text-body-sm">${escapeHtml(t.displayCategory)}</span>
         </div>
-        <div class="hidden sm:flex sm:col-span-2 gap-1 action-reveal">
-          ${isFriend ? `
-            <button onclick="navigateTo('friends'); selectFriend('${escapeHtml(t.friendName)}');" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-container" title="View Friend Ledger">
-              <span class="material-symbols-outlined text-[18px]">visibility</span>
-            </button>
-            <button onclick="confirmDeleteFriendTx('${t.id}')" class="text-on-surface-variant hover:text-error p-1 rounded hover:bg-error-container" title="Delete">
-              <span class="material-symbols-outlined text-[18px]">delete</span>
-            </button>
-          ` : `
-            <button onclick="openExpenseModal('${t.id}')" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-container" title="Edit">
-              <span class="material-symbols-outlined text-[18px]">edit</span>
-            </button>
-            <button onclick="confirmDeleteExpense('${t.id}')" class="text-on-surface-variant hover:text-error p-1 rounded hover:bg-error-container" title="Delete">
-              <span class="material-symbols-outlined text-[18px]">delete</span>
-            </button>
-          `}
-        </div>
-        <div class="col-span-5 sm:col-span-2 text-right text-numeric-data ${t.amountColorClass}">${t.displayAmount}</div>
+        <div class="col-span-4 sm:col-span-2 text-right text-numeric-data ${t.amountColorClass}">${t.displayAmount}</div>
       </div>`;
   }).join('');
 }
@@ -1062,14 +1045,15 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#expenseSubmitBtn').addEventListener('click', () => {
     const form = $('#expenseForm');
     const id = $('#expenseId').value;
+    const descInput = $('#expenseDescription') ? $('#expenseDescription').value.trim() : '';
     const data = {
       amount: Number($('#expenseAmount').value),
       date: $('#expenseDate').value,
       category: $('#expenseCategory').value,
-      description: $('#expenseDescription').value.trim(),
+      description: descInput || 'Other',
     };
-    if (!data.amount || !data.date || !data.category || !data.description) {
-      showToast('Please fill all fields!', 'error');
+    if (!data.amount || !data.date || !data.category) {
+      showToast('Please fill required fields (Amount, Date, Category)!', 'error');
       return;
     }
     if (id) {
@@ -1108,16 +1092,17 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#friendSubmitBtn').addEventListener('click', async () => {
     const id = $('#friendTxId').value;
     const dueDateVal = $('#friendDueDate') ? $('#friendDueDate').value : '';
+    const reasonInput = $('#friendReason') ? $('#friendReason').value.trim() : '';
     const data = {
       friendName: $('#friendName').value.trim(),
       amount: Number($('#friendAmount').value),
       type: friendTxType,
-      reason: $('#friendReason').value.trim(),
+      reason: reasonInput || 'Other',
       date: $('#friendDate').value,
       dueDate: dueDateVal,
     };
-    if (!data.friendName || !data.amount || !data.reason || !data.date) {
-      showToast('Please fill all required fields!', 'error');
+    if (!data.friendName || !data.amount || !data.date) {
+      showToast('Please fill required fields (Name, Amount, Date)!', 'error');
       return;
     }
     if (id) {
@@ -1578,56 +1563,75 @@ function closeReminderModal() {
    ======================================== */
 let notifsReadState = false;
 
+function getNotifPreferences() {
+  const defaults = { push: true, expenseReminders: false, friendLedger: true, budgetAlerts: true };
+  try {
+    const stored = localStorage.getItem('spendly_notif_prefs');
+    return stored ? { ...defaults, ...JSON.parse(stored) } : defaults;
+  } catch (e) {
+    return defaults;
+  }
+}
+
 function renderNotifications() {
   const notifListEl = $('#notifList');
   const notifBadgeEl = $('#notifBadge');
   if (!notifListEl) return;
+
+  const notifPrefs = getNotifPreferences();
+  if (!notifPrefs.push) {
+    if (notifBadgeEl) notifBadgeEl.classList.add('hidden');
+    notifListEl.innerHTML = '<p class="text-body-sm text-on-surface-variant text-center py-8">Push Notifications are turned off in Settings.</p>';
+    return;
+  }
 
   const todayStr = getToday();
   const todayDate = new Date(todayStr);
 
   const notifications = [];
 
-  // 1. Friend Transactions with Settlement/Return Dates (1-Day Prior & Due Today Alerts)
-  const friendTxs = getFriendTransactions();
-  friendTxs.forEach(f => {
-    if (f.dueDate) {
-      const due = new Date(f.dueDate);
-      const diffTime = due.getTime() - todayDate.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // 1. Debt / Friend Ledger Due Reminders
+  if (notifPrefs.friendLedger) {
+    const friendTxs = getFriendTransactions();
+    friendTxs.forEach(f => {
+      if (f.dueDate) {
+        const due = new Date(f.dueDate);
+        const diffTime = due.getTime() - todayDate.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      const isGiven = f.type === 'given';
-      const actionText = isGiven ? `Collect ${formatCurrency(f.amount)} from ${f.friendName}` : `Return ${formatCurrency(f.amount)} to ${f.friendName}`;
+        const isGiven = f.type === 'given';
+        const actionText = isGiven ? `Collect ${formatCurrency(f.amount)} from ${f.friendName}` : `Return ${formatCurrency(f.amount)} to ${f.friendName}`;
 
-      if (diffDays === 1) {
-        notifications.push({
-          id: 'ftx_' + f.id,
-          icon: 'event_upcoming',
-          iconColor: 'text-amber-600',
-          title: `⏰ Tomorrow Settlement Alert`,
-          subtitle: `${actionText} (${f.reason})`,
-          badge: 'Due Tomorrow',
-          badgeStyle: 'bg-amber-100 text-amber-800 border-amber-300',
-          page: 'friends',
-          friendName: f.friendName
-        });
-      } else if (diffDays === 0) {
-        notifications.push({
-          id: 'ftx_' + f.id,
-          icon: 'error_med',
-          iconColor: 'text-error',
-          title: `🚨 Settlement Due Today!`,
-          subtitle: `${actionText} (${f.reason})`,
-          badge: 'Due Today',
-          badgeStyle: 'bg-red-100 text-red-800 border-red-300',
-          page: 'friends',
-          friendName: f.friendName
-        });
+        if (diffDays === 1) {
+          notifications.push({
+            id: 'ftx_' + f.id,
+            icon: 'event_upcoming',
+            iconColor: 'text-amber-600',
+            title: `⏰ Tomorrow Settlement Alert`,
+            subtitle: `${actionText} (${f.reason})`,
+            badge: 'Due Tomorrow',
+            badgeStyle: 'bg-amber-100 text-amber-800 border-amber-300',
+            page: 'friends',
+            friendName: f.friendName
+          });
+        } else if (diffDays === 0) {
+          notifications.push({
+            id: 'ftx_' + f.id,
+            icon: 'error_med',
+            iconColor: 'text-error',
+            title: `🚨 Settlement Due Today!`,
+            subtitle: `${actionText} (${f.reason})`,
+            badge: 'Due Today',
+            badgeStyle: 'bg-red-100 text-red-800 border-red-300',
+            page: 'friends',
+            friendName: f.friendName
+          });
+        }
       }
-    }
-  });
+    });
+  }
 
-  // 2. Active High-Priority & Today's Reminders
+  // 2. Active Reminders
   const reminders = getReminders();
   reminders.filter(r => !r.completed).forEach(r => {
     notifications.push({
@@ -1642,21 +1646,23 @@ function renderNotifications() {
     });
   });
 
-  // 3. Over-Budget Warning
-  const budget = getBudget();
-  const monthExpenses = getExpenses().filter(e => e.date.startsWith(getCurrentMonthStr()));
-  const totalSpent = monthExpenses.reduce((s, e) => s + Number(e.amount), 0);
-  if (budget.amount > 0 && totalSpent > budget.amount) {
-    notifications.push({
-      id: 'bg_warning',
-      icon: 'warning',
-      iconColor: 'text-error',
-      title: `⚠️ Budget Limit Exceeded!`,
-      subtitle: `Spent ${formatCurrency(totalSpent)} vs Budget ${formatCurrency(budget.amount)}`,
-      badge: 'Over Budget',
-      badgeStyle: 'bg-red-100 text-red-800 border-red-300',
-      page: 'dashboard'
-    });
+  // 3. Budget Alerts
+  if (notifPrefs.budgetAlerts) {
+    const budget = getBudget();
+    const monthExpenses = getExpenses().filter(e => e.date.startsWith(getCurrentMonthStr()));
+    const totalSpent = monthExpenses.reduce((s, e) => s + Number(e.amount), 0);
+    if (budget.amount > 0 && totalSpent > (budget.amount * 0.8)) {
+      notifications.push({
+        id: 'bg_warning',
+        icon: 'warning',
+        iconColor: 'text-error',
+        title: `⚠️ Budget Warning!`,
+        subtitle: `Spent ${formatCurrency(totalSpent)} (${Math.round((totalSpent / budget.amount) * 100)}% of ${formatCurrency(budget.amount)} budget)`,
+        badge: totalSpent > budget.amount ? 'Over Budget' : '80% Spent',
+        badgeStyle: 'bg-red-100 text-red-800 border-red-300',
+        page: 'dashboard'
+      });
+    }
   }
 
   // Render Badge
@@ -1734,105 +1740,651 @@ function setupNotificationListeners() {
 /* ========================================
    SETTINGS PAGE LOGIC
    ======================================== */
+function applyCustomColorCSS(hexColor) {
+  let styleEl = $('#dynamicCustomThemeStyle');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'dynamicCustomThemeStyle';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = `
+    [data-accent="custom"] .bg-primary { background-color: ${hexColor} !important; }
+    [data-accent="custom"] .text-primary { color: ${hexColor} !important; }
+    [data-accent="custom"] .border-primary { border-color: ${hexColor} !important; }
+    [data-accent="custom"] .tab-indicator { background-color: ${hexColor} !important; }
+  `;
+}
+
+function removeCustomColorCSS() {
+  const styleEl = $('#dynamicCustomThemeStyle');
+  if (styleEl) styleEl.textContent = '';
+}
+
+function applyAppearanceSettings() {
+  const isDark = localStorage.getItem('spendly_dark_mode') === 'true';
+  const savedAccent = localStorage.getItem('spendly_accent_color') || 'blue';
+  const customColor = localStorage.getItem('spendly_custom_color') || '#091426';
+
+  if (isDark) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+
+  document.documentElement.setAttribute('data-accent', savedAccent);
+
+  if (savedAccent === 'custom' && customColor) {
+    applyCustomColorCSS(customColor);
+  } else {
+    removeCustomColorCSS();
+  }
+
+  const darkToggle = $('#darkModeToggle');
+  if (darkToggle) darkToggle.checked = isDark;
+
+  const wheelInput = $('#customColorWheel');
+  const hexLabel = $('#customColorHexLabel');
+  if (wheelInput) wheelInput.value = customColor;
+  if (hexLabel) hexLabel.textContent = customColor.toUpperCase();
+
+  $$('#themeColorGrid .theme-color-btn').forEach(btn => {
+    const themeName = btn.getAttribute('data-theme');
+    const checkMark = btn.querySelector('.check-mark');
+    if (themeName === savedAccent) {
+      btn.classList.add('active', 'border-primary');
+      btn.classList.remove('border-outline-variant/60');
+      if (checkMark) checkMark.classList.remove('hidden');
+    } else {
+      btn.classList.remove('active', 'border-primary');
+      btn.classList.add('border-outline-variant/60');
+      if (checkMark) checkMark.classList.add('hidden');
+    }
+  });
+}
+
+function updateSidebarProfile() {
+  const savedName = localStorage.getItem('spendly_user_name') || '';
+  const savedAvatar = localStorage.getItem('spendly_user_avatar') || '';
+
+  const firstName = savedName.trim() ? savedName.trim().split(' ')[0] : 'User';
+
+  const nameEl = $('#sidebarUserFirstName');
+  if (nameEl) nameEl.textContent = firstName;
+
+  const avatarIcon = $('#sidebarUserAvatarIcon');
+  const avatarImg = $('#sidebarUserAvatarImg');
+  if (avatarIcon && avatarImg) {
+    if (savedAvatar) {
+      avatarImg.src = savedAvatar;
+      avatarImg.classList.remove('hidden');
+      avatarIcon.classList.add('hidden');
+    } else {
+      avatarImg.classList.add('hidden');
+      avatarIcon.classList.remove('hidden');
+    }
+  }
+}
+
 function renderSettings() {
   const savedName = localStorage.getItem('spendly_user_name') || '';
   const savedCurrency = localStorage.getItem('spendly_user_currency') || '₹';
+  const savedAvatar = localStorage.getItem('spendly_user_avatar') || '';
+  const savedDateFormat = localStorage.getItem('spendly_date_format') || 'DD/MM/YYYY';
 
   if ($('#settingsUserName')) $('#settingsUserName').value = savedName;
   if ($('#settingsCurrency')) $('#settingsCurrency').value = savedCurrency;
+  if ($('#settingsDateFormat')) $('#settingsDateFormat').value = savedDateFormat;
+  if ($('#profileDisplayNameHead')) $('#profileDisplayNameHead').textContent = savedName || 'User Profile';
+  if ($('#appInfoDeveloperName')) $('#appInfoDeveloperName').textContent = savedName || 'Mahendra Kewat';
 
-  // Storage Stats Summary
-  const expenses = getExpenses();
-  const friends = getFriendTransactions();
-  const bills = getBills();
-  const reminders = getReminders();
+  // Avatar Image Sync
+  const avatarIcon = $('#profileAvatarIcon');
+  const avatarImg = $('#profileAvatarImg');
+  if (avatarIcon && avatarImg) {
+    if (savedAvatar) {
+      avatarImg.src = savedAvatar;
+      avatarImg.classList.remove('hidden');
+      avatarIcon.classList.add('hidden');
+    } else {
+      avatarImg.classList.add('hidden');
+      avatarIcon.classList.remove('hidden');
+    }
+  }
 
-  if ($('#statCountExpenses')) $('#statCountExpenses').textContent = expenses.length;
-  if ($('#statCountFriends')) $('#statCountFriends').textContent = friends.length;
-  if ($('#statCountBills')) $('#statCountBills').textContent = bills.length;
-  if ($('#statCountReminders')) $('#statCountReminders').textContent = reminders.length;
+  // Sync Notification Toggles
+  const notifPrefs = getNotifPreferences();
+  if ($('#notifPushToggle')) $('#notifPushToggle').checked = !!notifPrefs.push;
+  if ($('#notifExpenseRemindersToggle')) $('#notifExpenseRemindersToggle').checked = !!notifPrefs.expenseReminders;
+  if ($('#notifFriendLedgerToggle')) $('#notifFriendLedgerToggle').checked = !!notifPrefs.friendLedger;
+  if ($('#notifBudgetAlertsToggle')) $('#notifBudgetAlertsToggle').checked = !!notifPrefs.budgetAlerts;
+
+  // Sync Appearance Settings
+  applyAppearanceSettings();
+
+  // Update Sidebar Profile Badge
+  updateSidebarProfile();
 }
 
 function setupSettingsListeners() {
-  // Save profile settings
+  // Settings Sub-Nav Tab Switching
+  $$('.settings-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.getAttribute('data-tab');
+
+      $$('.settings-tab-btn').forEach(b => {
+        b.classList.remove('active', 'bg-surface-container', 'text-primary');
+        b.classList.add('text-on-surface-variant');
+        const ind = b.querySelector('.tab-indicator');
+        if (ind) ind.classList.add('hidden');
+      });
+
+      btn.classList.add('active', 'bg-surface-container', 'text-primary');
+      btn.classList.remove('text-on-surface-variant');
+      const activeInd = btn.querySelector('.tab-indicator');
+      if (activeInd) activeInd.classList.remove('hidden');
+
+      $$('.settings-tab-content').forEach(content => {
+        content.classList.add('hidden');
+        content.classList.remove('active');
+      });
+
+      const targetContent = $(`#tab-content-${targetTab}`);
+      if (targetContent) {
+        targetContent.classList.remove('hidden');
+        targetContent.classList.add('active');
+      }
+    });
+  });
+
+  // Profile Photo Upload & Remove
+  const photoInput = $('#profilePhotoInput');
+  if (photoInput) {
+    photoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const base64Img = evt.target.result;
+        localStorage.setItem('spendly_user_avatar', base64Img);
+        showToast('Profile photo updated!');
+        renderSettings();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const removePhotoBtn = $('#removeProfilePhotoBtn');
+  if (removePhotoBtn) {
+    removePhotoBtn.addEventListener('click', () => {
+      localStorage.removeItem('spendly_user_avatar');
+      showToast('Profile photo removed');
+      renderSettings();
+    });
+  }
+
+  // Save / Toggle Profile Edit Mode (Top Right White Icon Button)
   const saveProfileBtn = $('#saveProfileSettingsBtn');
+  let isProfileEditMode = false;
+
   if (saveProfileBtn) {
     saveProfileBtn.addEventListener('click', () => {
-      const nameVal = $('#settingsUserName') ? $('#settingsUserName').value.trim() : '';
-      const currencyVal = $('#settingsCurrency') ? $('#settingsCurrency').value : '₹';
+      const controls = $('#profilePhotoControls');
+      const cameraBadge = $('#profilePhotoCameraBadge');
+      const editFields = $('#profileEditFields');
 
-      localStorage.setItem('spendly_user_name', nameVal);
-      localStorage.setItem('spendly_user_currency', currencyVal);
+      if (!isProfileEditMode) {
+        // Enter Edit Mode
+        isProfileEditMode = true;
+        if (controls) controls.classList.remove('hidden');
+        if (cameraBadge) cameraBadge.classList.remove('hidden');
+        if (editFields) editFields.classList.remove('hidden');
 
-      showToast('Profile & Currency settings saved!');
-      renderSettings();
+        saveProfileBtn.innerHTML = `<span class="material-symbols-outlined text-[16px] text-white">check</span>`;
+        saveProfileBtn.title = "Save Profile";
+        if ($('#settingsUserName')) $('#settingsUserName').focus();
+        showToast('Edit mode enabled. Make your changes and click Save.', 'info');
+      } else {
+        // Save Changes & Exit Edit Mode
+        const nameVal = $('#settingsUserName') ? $('#settingsUserName').value.trim() : '';
+        const currencyVal = $('#settingsCurrency') ? $('#settingsCurrency').value : '₹';
+
+        localStorage.setItem('spendly_user_name', nameVal);
+        localStorage.setItem('spendly_user_currency', currencyVal);
+
+        isProfileEditMode = false;
+        if (controls) controls.classList.add('hidden');
+        if (cameraBadge) cameraBadge.classList.add('hidden');
+        if (editFields) editFields.classList.add('hidden');
+
+        saveProfileBtn.innerHTML = `<span class="material-symbols-outlined text-[16px] text-white">edit</span>`;
+        saveProfileBtn.title = "Update Profile";
+
+        showToast('Profile updated successfully!');
+        renderSettings();
+        if (currentPage === 'dashboard') renderDashboard();
+      }
+    });
+  }
+
+  // Regional & Format Preferences Listeners
+  const currencySelect = $('#settingsCurrency');
+  if (currencySelect) {
+    currencySelect.addEventListener('change', (e) => {
+      localStorage.setItem('spendly_user_currency', e.target.value);
+      showToast(`Currency format updated to ${e.target.value}!`);
       if (currentPage === 'dashboard') renderDashboard();
     });
   }
 
-  // Settings Data Center Buttons
-  if ($('#settingsExportJsonBtn')) $('#settingsExportJsonBtn').addEventListener('click', exportDatabaseJSON);
-  if ($('#settingsExportCsvBtn')) $('#settingsExportCsvBtn').addEventListener('click', exportCSV);
-  if ($('#settingsResetDbBtn')) $('#settingsResetDbBtn').addEventListener('click', resetDatabase);
-
-  // Restore JSON Backup File
-  const importInput = $('#settingsImportJsonInput');
-  if (importInput) {
-    importInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = async (evt) => {
-        try {
-          const importedData = JSON.parse(evt.target.result);
-          if (importedData && (importedData.expenses || importedData.budget)) {
-            showConfirm('Restore Database Backup', 'WARNING: This will overwrite your current IndexedDB data with the backup file. Continue?', async () => {
-              if (importedData.expenses) {
-                await idbClear('expenses');
-                for (const item of importedData.expenses) await idbPut('expenses', item);
-                state.expenses = importedData.expenses;
-              }
-              if (importedData.friends) {
-                await idbClear('friends');
-                for (const item of importedData.friends) await idbPut('friends', item);
-                state.friends = importedData.friends;
-              }
-              if (importedData.bills) {
-                await idbClear('bills');
-                for (const item of importedData.bills) await idbPut('bills', item);
-                state.bills = importedData.bills;
-              }
-              if (importedData.reminders) {
-                await idbClear('reminders');
-                for (const item of importedData.reminders) await idbPut('reminders', item);
-                state.reminders = importedData.reminders;
-              }
-              if (importedData.budget) {
-                await idbClear('budget');
-                await idbPut('budget', { key: 'main', amount: importedData.budget.amount || 0 });
-                state.budget = importedData.budget;
-              }
-              showToast('Database backup restored successfully!');
-              renderPage(currentPage);
-            });
-          } else {
-            showToast('Invalid backup JSON file structure!', 'error');
-          }
-        } catch (err) {
-          showToast('Failed to read backup file!', 'error');
-        }
-      };
-      reader.readAsText(file);
+  const dateFormatSelect = $('#settingsDateFormat');
+  if (dateFormatSelect) {
+    dateFormatSelect.addEventListener('change', (e) => {
+      localStorage.setItem('spendly_date_format', e.target.value);
+      showToast(`Date format updated to ${e.target.value}!`);
     });
   }
+
+  // Delete Account & Reset Data
+  const deleteAccountBtn = $('#deleteAccountBtn');
+  if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener('click', () => {
+      showConfirm('Delete Account & Clear Data', 'WARNING: Are you sure you want to delete your account and wipe all IndexedDB data? This action cannot be undone.', async () => {
+        await idbClear('expenses');
+        await idbClear('friends');
+        await idbClear('bills');
+        await idbClear('reminders');
+        await idbClear('budget');
+        localStorage.clear();
+        showToast('Account deleted and data reset!', 'error');
+        setTimeout(() => location.reload(), 1000);
+      });
+    });
+  }
+
+  // Save Notification Preferences
+  const saveNotifBtn = $('#saveNotifPreferencesBtn');
+  if (saveNotifBtn) {
+    saveNotifBtn.addEventListener('click', () => {
+      const prefs = {
+        push: $('#notifPushToggle') ? $('#notifPushToggle').checked : true,
+        expenseReminders: $('#notifExpenseRemindersToggle') ? $('#notifExpenseRemindersToggle').checked : false,
+        friendLedger: $('#notifFriendLedgerToggle') ? $('#notifFriendLedgerToggle').checked : true,
+        budgetAlerts: $('#notifBudgetAlertsToggle') ? $('#notifBudgetAlertsToggle').checked : true
+      };
+      localStorage.setItem('spendly_notif_prefs', JSON.stringify(prefs));
+      showToast('Notification preferences saved!');
+      renderNotifications();
+    });
+  }
+
+  // Dark Theme Mode Switch
+  const darkToggle = $('#darkModeToggle');
+  if (darkToggle) {
+    darkToggle.addEventListener('change', (e) => {
+      const isChecked = e.target.checked;
+      localStorage.setItem('spendly_dark_mode', isChecked ? 'true' : 'false');
+      applyAppearanceSettings();
+      showToast(isChecked ? 'Dark Mode enabled!' : 'Light Mode enabled!');
+    });
+  }
+
+  // Accent Color Theme Palette Buttons
+  $$('#themeColorGrid .theme-color-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const selectedTheme = btn.getAttribute('data-theme');
+      localStorage.setItem('spendly_accent_color', selectedTheme);
+      applyAppearanceSettings();
+      showToast(`Theme accent changed to ${btn.innerText.trim()}!`);
+    });
+  });
+
+  // Custom Color Wheel Picker Listener
+  const colorWheel = $('#customColorWheel');
+  if (colorWheel) {
+    colorWheel.addEventListener('input', (e) => {
+      const selectedHex = e.target.value;
+      localStorage.setItem('spendly_custom_color', selectedHex);
+      localStorage.setItem('spendly_accent_color', 'custom');
+      applyAppearanceSettings();
+    });
+    colorWheel.addEventListener('change', (e) => {
+      showToast(`Custom theme color set to ${e.target.value.toUpperCase()}!`);
+    });
+  }
+
+  // Data & Privacy Panel Event Listeners
+  if ($('#privacyExportCsvBtn')) $('#privacyExportCsvBtn').addEventListener('click', exportCSV);
+  if ($('#privacyExportPdfBtn')) $('#privacyExportPdfBtn').addEventListener('click', exportPDF);
+  if ($('#privacyBackupJsonBtn')) $('#privacyBackupJsonBtn').addEventListener('click', exportDatabaseJSON);
+  if ($('#privacyClearAllDataBtn')) $('#privacyClearAllDataBtn').addEventListener('click', resetDatabase);
+
+  // Privacy Policy Modal Handlers
+  const openPrivacyModalBtn = $('#openPrivacyPolicyModalBtn');
+  const privacyModal = $('#privacyPolicyModal');
+  const closePrivacyModalBtn = $('#closePrivacyPolicyModal');
+  const privacyCloseBtn = $('#privacyPolicyCloseBtn');
+
+  if (openPrivacyModalBtn && privacyModal) {
+    openPrivacyModalBtn.addEventListener('click', () => {
+      privacyModal.classList.add('active');
+    });
+  }
+  if (closePrivacyModalBtn && privacyModal) {
+    closePrivacyModalBtn.addEventListener('click', () => {
+      privacyModal.classList.remove('active');
+    });
+  }
+  if (privacyCloseBtn && privacyModal) {
+    privacyCloseBtn.addEventListener('click', () => {
+      privacyModal.classList.remove('active');
+    });
+  }
+
+  // Restore JSON Backup File (Data & Privacy + Settings)
+  const handleRestoreFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const importedData = JSON.parse(evt.target.result);
+        if (importedData && (importedData.expenses || importedData.budget)) {
+          showConfirm('Restore Database Backup', 'WARNING: This will overwrite your current IndexedDB data with the backup file. Continue?', async () => {
+            if (importedData.expenses) {
+              await idbClear('expenses');
+              for (const item of importedData.expenses) await idbPut('expenses', item);
+              state.expenses = importedData.expenses;
+            }
+            if (importedData.friends) {
+              await idbClear('friends');
+              for (const item of importedData.friends) await idbPut('friends', item);
+              state.friends = importedData.friends;
+            }
+            if (importedData.bills) {
+              await idbClear('bills');
+              for (const item of importedData.bills) await idbPut('bills', item);
+              state.bills = importedData.bills;
+            }
+            if (importedData.reminders) {
+              await idbClear('reminders');
+              for (const item of importedData.reminders) await idbPut('reminders', item);
+              state.reminders = importedData.reminders;
+            }
+            if (importedData.budget) {
+              await idbClear('budget');
+              await idbPut('budget', { key: 'main', amount: importedData.budget.amount || 0 });
+              state.budget = importedData.budget;
+            }
+            showToast('Database backup restored successfully!');
+            renderPage(currentPage);
+          });
+        } else {
+          showToast('Invalid backup JSON file structure!', 'error');
+        }
+      } catch (err) {
+        showToast('Failed to read backup file!', 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  if ($('#privacyRestoreJsonInput')) $('#privacyRestoreJsonInput').addEventListener('change', handleRestoreFile);
+  if ($('#settingsImportJsonInput')) $('#settingsImportJsonInput').addEventListener('change', handleRestoreFile);
+
+  // App Info List Item Modals (Feedback, Contact, Terms)
+  // 1. Feedback Modal Handlers
+  const feedbackRow = $('#appInfoFeedbackRow');
+  const feedbackModal = $('#feedbackModal');
+  const closeFeedbackModal = $('#closeFeedbackModal');
+  const cancelFeedbackBtn = $('#cancelFeedbackBtn');
+  const feedbackForm = $('#feedbackForm');
+  const starBtns = $$('#starRatingContainer .star-btn');
+  const starRatingVal = $('#feedbackRatingValue');
+  const starRatingLbl = $('#starRatingLabel');
+
+  const starLabels = {
+    1: 'Poor (1 Star)',
+    2: 'Fair (2 Stars)',
+    3: 'Good (3 Stars)',
+    4: 'Very Good (4 Stars)',
+    5: 'Excellent (5 Stars)'
+  };
+
+  const updateStarRating = (rating) => {
+    if (starRatingVal) starRatingVal.value = rating;
+    if (starRatingLbl) starRatingLbl.textContent = starLabels[rating] || `${rating} Stars`;
+
+    starBtns.forEach(btn => {
+      const starNum = parseInt(btn.getAttribute('data-star') || '1');
+      if (starNum <= rating) {
+        btn.className = 'star-btn text-amber-400 p-1 focus:outline-none transition-transform hover:scale-110';
+        btn.innerHTML = `<span class="material-symbols-outlined text-[32px] fill-current">star</span>`;
+      } else {
+        btn.className = 'star-btn text-outline-variant p-1 focus:outline-none transition-transform hover:scale-110';
+        btn.innerHTML = `<span class="material-symbols-outlined text-[32px]">star_border</span>`;
+      }
+    });
+  };
+
+  if (starBtns) {
+    starBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const starNum = parseInt(btn.getAttribute('data-star') || '5');
+        updateStarRating(starNum);
+      });
+    });
+  }
+
+  if (feedbackRow && feedbackModal) {
+    feedbackRow.addEventListener('click', () => {
+      updateStarRating(5);
+      if ($('#feedbackText')) $('#feedbackText').value = '';
+      feedbackModal.classList.add('active');
+    });
+  }
+  if (closeFeedbackModal && feedbackModal) {
+    closeFeedbackModal.addEventListener('click', () => feedbackModal.classList.remove('active'));
+  }
+  if (cancelFeedbackBtn && feedbackModal) {
+    cancelFeedbackBtn.addEventListener('click', () => feedbackModal.classList.remove('active'));
+  }
+  // Feedback Preview Modal Handlers
+  const feedbackPreviewModal = $('#feedbackPreviewModal');
+  const closeFeedbackPreviewModal = $('#closeFeedbackPreviewModal');
+  const openGmailWebBtn = $('#openGmailWebBtn');
+  const copyFeedbackTextBtn = $('#copyFeedbackTextBtn');
+  let currentFeedbackData = { subject: '', body: '', rating: '5' };
+
+  if (closeFeedbackPreviewModal && feedbackPreviewModal) {
+    closeFeedbackPreviewModal.addEventListener('click', () => feedbackPreviewModal.classList.remove('active'));
+  }
+
+  if (openGmailWebBtn) {
+    openGmailWebBtn.addEventListener('click', () => {
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=mahendrakewat0905@gmail.com&su=${encodeURIComponent(currentFeedbackData.subject)}&body=${encodeURIComponent(currentFeedbackData.body)}`;
+      window.open(gmailUrl, '_blank');
+      if (feedbackPreviewModal) feedbackPreviewModal.classList.remove('active');
+      showToast('Opening Gmail web compose screen...', 'info');
+    });
+  }
+
+  if (copyFeedbackTextBtn) {
+    copyFeedbackTextBtn.addEventListener('click', () => {
+      const fullText = `To: mahendrakewat0905@gmail.com\nSubject: ${currentFeedbackData.subject}\n\n${currentFeedbackData.body}`;
+      navigator.clipboard.writeText(fullText);
+      showToast('Feedback email text copied to clipboard!');
+    });
+  }
+
+  if (feedbackForm) {
+    feedbackForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const ratingVal = $('#feedbackRatingValue') ? $('#feedbackRatingValue').value : '5';
+      const categoryVal = $('#feedbackCategory') ? $('#feedbackCategory').value : 'General Feedback';
+      const textVal = $('#feedbackText') ? $('#feedbackText').value.trim() : '';
+
+      if (!textVal) {
+        showToast('Please enter your feedback details.', 'error');
+        return;
+      }
+
+      currentFeedbackData = {
+        rating: ratingVal,
+        subject: `Spendly Feedback [${ratingVal} Stars] - ${categoryVal}`,
+        body: `Rating: ${ratingVal} / 5 Stars\nCategory: ${categoryVal}\n\nFeedback:\n${textVal}`
+      };
+
+      if ($('#previewFeedbackRatingBadge')) $('#previewFeedbackRatingBadge').textContent = `★ ${ratingVal} Stars`;
+      if ($('#previewFeedbackSubject')) $('#previewFeedbackSubject').textContent = `Subject: ${currentFeedbackData.subject}`;
+      if ($('#previewFeedbackBody')) $('#previewFeedbackBody').textContent = currentFeedbackData.body;
+
+      if (feedbackModal) feedbackModal.classList.remove('active');
+      if (feedbackPreviewModal) feedbackPreviewModal.classList.add('active');
+      if ($('#feedbackText')) $('#feedbackText').value = '';
+    });
+  }
+
+  // 2. Contact Us Modal Handlers
+  const contactRow = $('#appInfoContactRow');
+  const contactModal = $('#contactModal');
+  const closeContactModal = $('#closeContactModal');
+  const closeContactModalBtn = $('#closeContactModalBtn');
+  const copyEmailBtn = $('#copyContactEmailBtn');
+
+  if (contactRow && contactModal) {
+    contactRow.addEventListener('click', () => {
+      contactModal.classList.add('active');
+    });
+  }
+  if (closeContactModal && contactModal) {
+    closeContactModal.addEventListener('click', () => contactModal.classList.remove('active'));
+  }
+  if (closeContactModalBtn && contactModal) {
+    closeContactModalBtn.addEventListener('click', () => contactModal.classList.remove('active'));
+  }
+  if (copyEmailBtn) {
+    copyEmailBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText('mahendrakewat0905@gmail.com');
+      showToast('Support email copied to clipboard!');
+    });
+  }
+
+  // Global Event Delegation for Modals Open & Close
+  document.addEventListener('click', (e) => {
+    // 1. Universal Close Handler (X icon, Close button, Cancel button)
+    const closeBtn = e.target.closest('#closeTermsModal, #closeTermsModalBtn, #closeContactModal, #closeContactModalBtn, #closeFeedbackModal, #cancelFeedbackBtn, #closeFeedbackPreviewModal, #closePrivacyPolicyModal, #privacyPolicyCloseBtn');
+    if (closeBtn) {
+      const activeModal = closeBtn.closest('.modal-overlay');
+      if (activeModal) activeModal.classList.remove('active');
+    }
+
+    // 2. Open App Info List Modals
+    const feedbackTarget = e.target.closest('#appInfoFeedbackRow');
+    if (feedbackTarget) {
+      const fbModal = $('#feedbackModal');
+      if (fbModal) {
+        updateStarRating(5);
+        if ($('#feedbackText')) $('#feedbackText').value = '';
+        fbModal.classList.add('active');
+      }
+    }
+
+    const contactTarget = e.target.closest('#appInfoContactRow');
+    if (contactTarget) {
+      const ctModal = $('#contactModal');
+      if (ctModal) ctModal.classList.add('active');
+    }
+
+    const termsTarget = e.target.closest('#appInfoTermsRow');
+    if (termsTarget) {
+      const tmModal = $('#termsModal');
+      if (tmModal) tmModal.classList.add('active');
+    }
+  });
+}
+
+function exportPDF() {
+  const expenses = getExpenses();
+  const currency = localStorage.getItem('spendly_user_currency') || '₹';
+  const userName = localStorage.getItem('spendly_user_name') || 'User';
+
+  if (!expenses || expenses.length === 0) {
+    showToast('No expenses available to export!', 'error');
+    return;
+  }
+
+  let printContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Spendly Financial Statement Report</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 24px; color: #1e293b; }
+        h1 { color: #091426; font-size: 24px; margin-bottom: 4px; }
+        p { color: #64748b; font-size: 13px; margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #cbd5e1; padding: 10px 12px; text-align: left; font-size: 13px; }
+        th { background-color: #f1f5f9; font-weight: bold; }
+        .amount { text-align: right; font-weight: bold; }
+        .header-bg { background-color: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+      </style>
+    </head>
+    <body>
+      <div class="header-bg">
+        <h1>Spendly Financial Statement Report</h1>
+        <p>Generated for <strong>${userName}</strong> on ${new Date().toLocaleDateString('en-GB')}</p>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Payment Mode</th>
+            <th class="amount">Amount (${currency})</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${expenses.map(e => `
+            <tr>
+              <td>${e.date || ''}</td>
+              <td>${e.title || ''}</td>
+              <td>${e.category || ''}</td>
+              <td>${e.paymentMethod || 'Cash'}</td>
+              <td class="amount">${currency}${parseFloat(e.amount || 0).toLocaleString('en-IN')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => {
+    printWindow.print();
+  }, 500);
 }
 
 // Attach listeners to DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
+  applyAppearanceSettings();
+  updateSidebarProfile();
+
+  const sidebarProfile = $('#sidebarUserProfile');
+  if (sidebarProfile) {
+    sidebarProfile.addEventListener('click', () => {
+      navigateTo('settings');
+    });
+  }
+
   setTimeout(() => {
     setupNotificationListeners();
     setupSettingsListeners();
   }, 300);
 });
-

@@ -92,12 +92,6 @@
         </a>
       </li>
       <li>
-        <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200 active:scale-95 text-on-surface-variant hover:text-primary hover:bg-surface-container-low" data-page="history">
-          <span class="material-symbols-outlined">history</span>
-          <span class="text-body-md font-medium">History</span>
-        </a>
-      </li>
-      <li>
         <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200 active:scale-95 text-on-surface-variant hover:text-primary hover:bg-surface-container-low" data-page="friends">
           <span class="material-symbols-outlined">group</span>
           <span class="text-body-md font-medium">Friends</span>
@@ -110,17 +104,36 @@
         </a>
       </li>
       <li>
+        <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200 active:scale-95 text-on-surface-variant hover:text-primary hover:bg-surface-container-low" data-page="history">
+          <span class="material-symbols-outlined">history</span>
+          <span class="text-body-md font-medium">History</span>
+        </a>
+      </li>
+      <li>
         <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200 active:scale-95 text-on-surface-variant hover:text-primary hover:bg-surface-container-low" data-page="settings">
           <span class="material-symbols-outlined">settings</span>
           <span class="text-body-md font-medium">Settings</span>
         </a>
       </li>
     </ul>
-    <!-- Bottom CTA -->
-    <div class="mt-auto pt-6 border-t border-outline-variant">
+    <!-- Bottom CTA & User Profile -->
+    <div class="mt-auto pt-4 border-t border-outline-variant">
       <button id="sidebarAddBtn" class="w-full bg-primary text-on-primary py-2.5 px-4 rounded-lg text-body-md font-medium hover:opacity-90 transition-opacity active:scale-95 flex items-center justify-center gap-2 shadow-sm">
         <span class="material-symbols-outlined text-[18px]">add</span> Add Expense
       </button>
+
+      <!-- User Profile Card under Add Expense -->
+      <div id="sidebarUserProfile" class="mt-2.5 w-full bg-surface-container-lowest border border-outline-variant rounded-xl p-2.5 flex items-center gap-3 cursor-pointer hover:bg-surface-container-low hover:border-primary/40 transition-all shadow-sm group" title="View Settings">
+        <div class="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden text-primary flex-shrink-0 shadow-sm">
+          <span id="sidebarUserAvatarIcon" class="material-symbols-outlined text-[24px]">person</span>
+          <img id="sidebarUserAvatarImg" class="w-full h-full object-cover hidden" alt="Profile Avatar"/>
+        </div>
+        <div class="overflow-hidden min-w-0 flex-1">
+          <p id="sidebarUserFirstName" class="text-body-md font-bold text-primary truncate group-hover:text-primary transition-colors">User</p>
+          <p class="text-[11px] text-on-surface-variant font-medium">My Account</p>
+        </div>
+        <span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+      </div>
     </div>
   </nav>
 
@@ -162,116 +175,112 @@
     </div>
 
     <!-- ============== CONTENT AREA ============== -->
-    <main class="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-margin-desktop">
+    <main class="flex-1 overflow-y-auto custom-scrollbar p-3.5 sm:p-4 md:p-5">
       <div class="max-w-[1280px] mx-auto">
 
         <!-- ===== DASHBOARD PAGE ===== -->
         <section class="page active" id="page-dashboard">
-          <!-- Stats Cards -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <!-- Top KPI Stats Row (Flat Divider Architecture) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 divide-y sm:divide-y-0 sm:divide-x divide-outline-variant pb-6 mb-6 border-b border-outline-variant">
             <!-- Monthly Budget -->
-            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow card-shadow-hover transition-shadow">
-              <div class="flex justify-between items-start mb-1">
-                <span class="text-label-md text-on-surface-variant uppercase tracking-wider">Monthly Budget</span>
-                <span class="material-symbols-outlined text-outline text-[20px]">payments</span>
+            <div class="space-y-1.5 sm:px-4 first:pl-0">
+              <div class="flex justify-between items-center">
+                <span class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">Monthly Budget</span>
+                <span class="material-symbols-outlined text-outline-variant text-[20px]">payments</span>
               </div>
-              <div class="text-headline-lg text-primary mt-2" id="budgetValue">₹0</div>
-              <div class="mt-3 flex items-center justify-between gap-2 flex-wrap border-t border-surface-container-low pt-2">
-                <button id="editBudgetBtn" class="text-label-md text-secondary hover:underline cursor-pointer font-medium">Set Budget →</button>
+              <div class="text-headline-lg font-bold text-primary" id="budgetValue">₹0</div>
+              <div class="flex items-center justify-between gap-2 flex-wrap pt-1">
+                <button id="editBudgetBtn" class="text-label-md text-secondary hover:underline cursor-pointer font-bold">Set Budget →</button>
                 <div id="budgetFriendLedgerMini"></div>
               </div>
             </div>
             <!-- Total Spent -->
-            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow card-shadow-hover transition-shadow">
-              <div class="flex justify-between items-start mb-1">
-                <span class="text-label-md text-on-surface-variant uppercase tracking-wider">Total Spent</span>
-                <span class="material-symbols-outlined text-outline text-[20px]">account_balance_wallet</span>
+            <div class="space-y-1.5 pt-4 sm:pt-0 sm:px-4">
+              <div class="flex justify-between items-center">
+                <span class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">Total Spent</span>
+                <span class="material-symbols-outlined text-outline-variant text-[20px]">account_balance_wallet</span>
               </div>
-              <div class="text-headline-lg text-primary mt-2" id="totalSpent">₹0</div>
-              <div class="mt-2 flex items-center text-body-sm" id="spentTrend"></div>
+              <div class="text-headline-lg font-bold text-primary" id="totalSpent">₹0</div>
+              <div class="flex items-center text-body-sm" id="spentTrend"></div>
             </div>
             <!-- Remaining -->
-            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow card-shadow-hover transition-shadow">
-              <div class="flex justify-between items-start mb-1">
-                <span class="text-label-md text-on-surface-variant uppercase tracking-wider">Remaining</span>
-                <span class="material-symbols-outlined text-outline text-[20px]">savings</span>
+            <div class="space-y-1.5 pt-4 sm:pt-0 sm:px-4">
+              <div class="flex justify-between items-center">
+                <span class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">Remaining</span>
+                <span class="material-symbols-outlined text-outline-variant text-[20px]">savings</span>
               </div>
-              <div class="text-headline-lg mt-2" id="remainingValue">₹0</div>
-              <div class="mt-2">
+              <div class="text-headline-lg font-bold" id="remainingValue">₹0</div>
+              <div class="pt-1">
                 <div class="progress-track"><div class="progress-fill" id="budgetProgressBar" style="width:0%"></div></div>
                 <div class="text-right text-label-md text-on-surface-variant mt-1" id="budgetPercent">0% left</div>
               </div>
             </div>
             <!-- Today's Spend -->
-            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow card-shadow-hover transition-shadow">
-              <div class="flex justify-between items-start mb-1">
-                <span class="text-label-md text-on-surface-variant uppercase tracking-wider">Today's Spend</span>
-                <span class="material-symbols-outlined text-outline text-[20px]">today</span>
+            <div class="space-y-1.5 pt-4 sm:pt-0 sm:px-4 last:pr-0">
+              <div class="flex justify-between items-center">
+                <span class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">Today's Spend</span>
+                <span class="material-symbols-outlined text-outline-variant text-[20px]">today</span>
               </div>
-              <div class="text-headline-lg text-primary mt-2" id="todaySpend">₹0</div>
+              <div class="text-headline-lg font-bold text-primary" id="todaySpend">₹0</div>
             </div>
           </div>
 
-          <!-- Two-column: Today's Expenses + Recent Activity -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <!-- Middle Section: Today's Expenses + Recent Activity -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 pb-4 mb-4 border-b border-outline-variant">
             <!-- Today's Expenses (8 cols) -->
-            <div class="md:col-span-8">
-              <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-surface-container-low">
-                  <h3 class="text-headline-sm text-primary">Today's Expenses</h3>
-                  <button id="addExpenseDashBtn" class="bg-primary text-on-primary px-3 py-1.5 rounded-lg flex items-center text-label-md hover:opacity-90 transition-opacity active:scale-95">
-                    <span class="material-symbols-outlined text-[16px] mr-1">add</span> Add
-                  </button>
-                </div>
-                <div id="todayExpensesList">
-                  <p class="text-body-sm text-on-surface-variant text-center py-10">No expenses today yet.</p>
-                </div>
+            <div class="md:col-span-8 md:border-r md:border-outline-variant md:pr-6">
+              <div class="flex justify-between items-center mb-3 pb-2 border-b border-outline-variant/60">
+                <h3 class="text-headline-sm font-bold text-primary">Today's Expenses</h3>
+                <button id="addExpenseDashBtn" class="bg-primary text-on-primary px-3 py-1 rounded-lg flex items-center text-body-xs font-bold hover:opacity-90 transition-all active:scale-95 shadow-xs">
+                  <span class="material-symbols-outlined text-[15px] mr-1">add</span> Add
+                </button>
+              </div>
+              <div id="todayExpensesList" class="max-h-[210px] overflow-y-auto custom-scrollbar pr-1">
+                <p class="text-body-sm text-on-surface-variant text-center py-6">No expenses today yet.</p>
               </div>
             </div>
             <!-- Recent Activity (4 cols) -->
             <div class="md:col-span-4">
-              <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-surface-container-low">
-                  <h3 class="text-headline-sm text-primary">Recent Activity</h3>
-                </div>
-                <div id="recentTransactions">
-                  <p class="text-body-sm text-on-surface-variant text-center py-10">No recent activity.</p>
-                </div>
+              <div class="flex justify-between items-center mb-3 pb-2 border-b border-outline-variant/60">
+                <h3 class="text-headline-sm font-bold text-primary">Recent Activity</h3>
+              </div>
+              <div id="recentTransactions" class="max-h-[210px] overflow-y-auto custom-scrollbar pr-1">
+                <p class="text-body-sm text-on-surface-variant text-center py-6">No recent activity.</p>
               </div>
             </div>
           </div>
 
-          <!-- Two-column: Top 5 Biggest Spends + Friend Ledger Summary -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <!-- Bottom Section: Top 5 Biggest Spends + Friend Ledger Summary -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Top 5 Biggest Spends -->
-            <div id="top-spends-card" class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow flex flex-col">
-              <div class="flex justify-between items-center mb-4 pb-2 border-b border-surface-container-low">
-                <h3 class="text-headline-sm text-primary">Top 5 Biggest Spends</h3>
-                <span class="material-symbols-outlined text-outline">analytics</span>
+            <div id="top-spends-card" class="md:border-r md:border-outline-variant md:pr-6 flex flex-col">
+              <div class="flex justify-between items-center mb-3 pb-2 border-b border-outline-variant/60">
+                <h3 class="text-headline-sm font-bold text-primary">Top 5 Biggest Spends</h3>
+                <span class="material-symbols-outlined text-outline-variant">analytics</span>
               </div>
-              <div id="top5List" class="flex-1">
-                <p class="text-body-sm text-on-surface-variant text-center py-10">No expenses this month yet.</p>
+              <div id="top5List" class="max-h-[190px] overflow-y-auto custom-scrollbar pr-1 flex-1">
+                <p class="text-body-sm text-on-surface-variant text-center py-6">No expenses this month yet.</p>
               </div>
             </div>
 
             <!-- Friend Ledger Summary -->
-            <div id="friend-ledger-card" class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 card-shadow flex flex-col">
-              <div class="flex justify-between items-center mb-4 pb-2 border-b border-surface-container-low">
-                <h3 class="text-headline-sm text-primary">Friend Ledger Summary</h3>
-                <span class="material-symbols-outlined text-outline">group</span>
+            <div id="friend-ledger-card" class="flex flex-col">
+              <div class="flex justify-between items-center mb-3 pb-2 border-b border-outline-variant/60">
+                <h3 class="text-headline-sm font-bold text-primary">Friend Ledger Summary</h3>
+                <span class="material-symbols-outlined text-outline-variant">group</span>
               </div>
-              <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="p-3 bg-surface-container-low rounded-lg">
-                  <div class="text-label-md text-on-surface-variant uppercase">Owed to You</div>
-                  <div class="text-headline-sm text-secondary" id="dashOwedToYou">₹0</div>
+              <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="p-2.5 bg-surface-container-low/60 rounded-xl border border-outline-variant">
+                  <div class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">Owed to You</div>
+                  <div class="text-headline-sm font-bold text-secondary mt-0.5" id="dashOwedToYou">₹0</div>
                 </div>
-                <div class="p-3 bg-surface-container-low rounded-lg">
-                  <div class="text-label-md text-on-surface-variant uppercase">You Owe</div>
-                  <div class="text-headline-sm text-error" id="dashYouOwe">₹0</div>
+                <div class="p-2.5 bg-surface-container-low/60 rounded-xl border border-outline-variant">
+                  <div class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">You Owe</div>
+                  <div class="text-headline-sm font-bold text-error mt-0.5" id="dashYouOwe">₹0</div>
                 </div>
               </div>
-              <div id="dashFriendSummaryList" class="space-y-2 flex-1">
-                <p class="text-body-sm text-on-surface-variant text-center py-6">No friend ledger activity yet.</p>
+              <div id="dashFriendSummaryList" class="max-h-[140px] overflow-y-auto custom-scrollbar pr-1 space-y-2 flex-1">
+                <p class="text-body-sm text-on-surface-variant text-center py-4">No friend ledger activity yet.</p>
               </div>
             </div>
           </div>
@@ -280,10 +289,10 @@
         <!-- ===== HISTORY PAGE ===== -->
         <section class="page" id="page-history">
           <!-- Header & Filters -->
-          <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h2 class="text-headline-lg text-primary">Transaction History</h2>
-              <p class="text-body-sm text-on-surface-variant mt-1">Review and filter your expenses.</p>
+          <div class="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300"><span class="material-symbols-outlined text-[14px]">lock</span> Read-Only Audit Log</span>
+              <span class="text-body-sm text-on-surface-variant hidden md:inline">• Immutable record-keeping</span>
             </div>
             <div class="flex flex-col sm:flex-row flex-wrap gap-2 w-full md:w-auto items-stretch sm:items-center">
               <!-- Search -->
@@ -344,23 +353,22 @@
               </div>
             </div>
           </div>
-          <!-- Data Table -->
-          <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col" style="min-height:350px;">
+          <!-- Data Table (Flat Hairline Architecture) -->
+          <div class="flex flex-col border-t border-b border-outline-variant" style="min-height:350px;">
             <!-- Table Header -->
-            <div class="grid grid-cols-12 gap-2 px-6 py-3 border-b border-outline-variant bg-surface-container-low text-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10">
+            <div class="grid grid-cols-12 gap-2 px-4 sm:px-6 py-3 border-b border-outline-variant bg-surface-container-low/40 text-label-md text-on-surface-variant uppercase tracking-wider sticky top-0 z-10 font-bold">
               <div class="col-span-3 sm:col-span-2">Date</div>
-              <div class="col-span-4 sm:col-span-3">Description</div>
+              <div class="col-span-5 sm:col-span-5">Description</div>
               <div class="hidden sm:block sm:col-span-3">Category</div>
-              <div class="hidden sm:block sm:col-span-2">Actions</div>
-              <div class="col-span-5 sm:col-span-2 text-right">Amount</div>
+              <div class="col-span-4 sm:col-span-2 text-right">Amount</div>
             </div>
             <!-- Table Body -->
-            <div class="flex-1 overflow-y-auto custom-scrollbar" id="historyList">
+            <div class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-outline-variant/30" id="historyList">
               <p class="text-body-sm text-on-surface-variant text-center py-16">No transactions found.</p>
             </div>
             <!-- Totals Footer -->
-            <div class="grid grid-cols-12 gap-2 px-6 py-3 border-t border-outline-variant bg-surface mt-auto" id="historySummary">
-              <div class="col-span-7 sm:col-span-10 text-right text-headline-sm text-on-surface">Total:</div>
+            <div class="grid grid-cols-12 gap-2 px-4 sm:px-6 py-3 border-t border-outline-variant bg-surface mt-auto" id="historySummary">
+              <div class="col-span-7 sm:col-span-10 text-right text-headline-sm text-on-surface font-bold">Total:</div>
               <div class="col-span-5 sm:col-span-2 text-right text-numeric-data text-primary font-bold">₹0</div>
             </div>
           </div>
@@ -368,41 +376,44 @@
 
         <!-- ===== FRIENDS PAGE ===== -->
         <section class="page" id="page-friends">
-          <!-- Summary Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
-            <div class="md:col-span-12 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
-              <div class="flex justify-between items-start mb-3">
-                <h3 class="text-headline-sm text-on-surface">Net Balance</h3>
-                <span class="material-symbols-outlined text-secondary">account_balance</span>
+          <!-- Summary Cards (Flat Divider Architecture) -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 divide-y md:divide-y-0 md:divide-x divide-outline-variant pb-6 mb-6 border-b border-outline-variant">
+            <div class="md:col-span-4 space-y-1.5 md:px-4 first:pl-0">
+              <div class="flex justify-between items-center">
+                <h3 class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">Net Balance</h3>
+                <span class="material-symbols-outlined text-secondary text-[20px]">account_balance</span>
               </div>
               <div class="flex items-baseline gap-2">
-                <span class="text-display-lg tracking-tight" id="netBalance">₹0</span>
-                <span class="text-body-sm text-on-surface-variant">overall</span>
+                <span class="text-display-lg font-bold tracking-tight text-primary" id="netBalance">₹0</span>
+                <span class="text-body-sm text-on-surface-variant font-medium">overall</span>
               </div>
             </div>
-            <div class="md:col-span-6 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
-              <div class="flex justify-between items-start mb-3">
-                <h3 class="text-headline-sm text-on-surface">People Owe You</h3>
-                <span class="material-symbols-outlined text-secondary">call_received</span>
+
+            <div class="md:col-span-4 space-y-1.5 pt-4 md:pt-0 md:px-4">
+              <div class="flex justify-between items-center">
+                <h3 class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">People Owe You</h3>
+                <span class="material-symbols-outlined text-secondary text-[20px]">call_received</span>
               </div>
-              <p class="text-headline-lg text-secondary mb-1" id="totalOwedToMe">₹0</p>
-              <p class="text-body-sm text-on-surface-variant" id="owedToMeCount">0 friends</p>
+              <p class="text-headline-lg font-bold text-secondary" id="totalOwedToMe">₹0</p>
+              <p class="text-body-sm text-on-surface-variant font-medium" id="owedToMeCount">0 friends</p>
             </div>
-            <div class="md:col-span-6 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
-              <div class="flex justify-between items-start mb-3">
-                <h3 class="text-headline-sm text-on-surface">You Owe People</h3>
-                <span class="material-symbols-outlined text-error">call_made</span>
+
+            <div class="md:col-span-4 space-y-1.5 pt-4 md:pt-0 md:px-4 last:pr-0">
+              <div class="flex justify-between items-center">
+                <h3 class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">You Owe People</h3>
+                <span class="material-symbols-outlined text-error text-[20px]">call_made</span>
               </div>
-              <p class="text-headline-lg text-error mb-1" id="totalIowe">₹0</p>
-              <p class="text-body-sm text-on-surface-variant" id="iOweCount">0 friends</p>
+              <p class="text-headline-lg font-bold text-error" id="totalIowe">₹0</p>
+              <p class="text-body-sm text-on-surface-variant font-medium" id="iOweCount">0 friends</p>
             </div>
           </div>
-          <!-- Friends List + Detail -->
+
+          <!-- Friends List + Detail (Flat Divider Columns) -->
           <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
             <!-- Friends List -->
-            <div class="md:col-span-4 flex flex-col gap-3">
-              <div class="flex justify-between items-center mb-1">
-                <h3 class="text-headline-sm text-on-surface">Friends Network</h3>
+            <div class="md:col-span-4 md:border-r md:border-outline-variant md:pr-6 flex flex-col gap-3">
+              <div class="flex justify-between items-center mb-1 pb-2 border-b border-outline-variant/60">
+                <h3 class="text-headline-sm font-bold text-primary">Friends Network</h3>
                 <button id="addFriendTxBtn" class="p-1 text-primary hover:bg-surface-container rounded-lg transition-colors" title="Add Transaction">
                   <span class="material-symbols-outlined">person_add</span>
                 </button>
@@ -413,11 +424,11 @@
             </div>
             <!-- Friend Detail -->
             <div class="md:col-span-8">
-              <div id="friendDetail" class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm min-h-[300px] flex flex-col">
+              <div id="friendDetail" class="min-h-[300px] flex flex-col">
                 <div class="flex-1 flex items-center justify-center text-body-md text-on-surface-variant p-10">
                   <div class="text-center">
                     <span class="material-symbols-outlined text-[48px] text-outline-variant mb-3 block">group</span>
-                    <p>Select a friend to view details</p>
+                    <p class="font-bold text-primary">Select a friend to view details</p>
                     <p class="text-body-sm mt-1">Or add a new transaction</p>
                   </div>
                 </div>
@@ -428,15 +439,12 @@
 
         <!-- ===== UPCOMING BILLS & REMINDERS PAGE ===== -->
         <section class="page" id="page-upcoming">
-          <div class="flex flex-col gap-8">
+          <div class="flex flex-col gap-6">
             <!-- Upcoming Bills Section -->
-            <div>
-              <div class="flex justify-between items-end mb-6">
-                <div>
-                  <h3 class="text-headline-sm text-on-surface">Upcoming Bills</h3>
-                  <p class="text-body-sm text-on-surface-variant mt-0.5">Manage your recurring payments.</p>
-                </div>
-                <button id="addBillBtn" class="bg-surface-container-lowest border border-primary text-primary font-label-md px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-surface-container-low transition-colors">
+            <div class="pb-6 border-b border-outline-variant">
+              <div class="flex justify-between items-center mb-4 pb-2 border-b border-outline-variant/60">
+                <h3 class="text-headline-sm font-bold text-primary">Upcoming Bills</h3>
+                <button id="addBillBtn" class="bg-primary text-on-primary font-bold text-body-sm px-4 py-2 rounded-xl flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-xs">
                   <span class="material-symbols-outlined text-[16px]">add</span> Add Bill
                 </button>
               </div>
@@ -447,16 +455,13 @@
 
             <!-- Reminders Section -->
             <div>
-              <div class="flex justify-between items-end mb-4">
-                <div>
-                  <h3 class="text-headline-sm text-on-surface">Reminders</h3>
-                  <p class="text-body-sm text-on-surface-variant mt-0.5">Personal tasks and follow-ups.</p>
-                </div>
-                <button id="addReminderBtn" class="text-primary font-label-md flex items-center gap-1 hover:underline">
+              <div class="flex justify-between items-center mb-4 pb-2 border-b border-outline-variant/60">
+                <h3 class="text-headline-sm font-bold text-primary">Reminders</h3>
+                <button id="addReminderBtn" class="text-primary font-bold text-body-sm flex items-center gap-1 hover:underline">
                   <span class="material-symbols-outlined text-[16px]">add</span> New Reminder
                 </button>
               </div>
-              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm divide-y divide-surface-variant overflow-hidden" id="remindersList">
+              <div class="border border-outline-variant rounded-xl divide-y divide-outline-variant overflow-hidden" id="remindersList">
                 <!-- Reminders populated via JS -->
               </div>
             </div>
@@ -465,186 +470,367 @@
 
         <!-- ===== SETTINGS PAGE ===== -->
         <section class="page" id="page-settings">
-          <div class="mb-6">
-            <h2 class="text-headline-lg text-primary">Settings & Preferences</h2>
-            <p class="text-body-sm text-on-surface-variant mt-1">Manage your account, preferences, database backups, and app settings.</p>
-          </div>
+          <!-- Vertical Tabbed Container (Flat Architecture) -->
+          <div class="flex flex-col md:flex-row min-h-[480px] border-b border-outline-variant">
 
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Settings Sub-Nav Tabs (Horizontal scroll on Mobile, Vertical list on Desktop) -->
+            <div class="w-full md:w-56 bg-surface-container-low/50 border-b md:border-b-0 md:border-r border-outline-variant p-2 md:p-2.5 flex flex-row md:flex-col overflow-x-auto md:overflow-visible custom-scrollbar gap-1.5 md:gap-0 md:space-y-1 flex-shrink-0">
+              <button class="settings-tab-btn active flex items-center gap-2 md:gap-3 px-3 md:px-3.5 py-2 md:py-2.5 rounded-xl font-medium text-body-sm md:text-body-md text-primary bg-surface-container transition-all relative flex-shrink-0 whitespace-nowrap" data-tab="profile">
+                <span class="tab-indicator w-1 md:w-1.5 h-4 md:h-6 bg-primary rounded-full absolute left-1"></span>
+                <span class="material-symbols-outlined text-[18px] md:text-[20px]">person</span>
+                <span>Account & Profile</span>
+              </button>
 
-            <!-- Left 2 Cols: Main Settings Sections -->
-            <div class="lg:col-span-2 space-y-6">
+              <button class="settings-tab-btn flex items-center gap-2 md:gap-3 px-3 md:px-3.5 py-2 md:py-2.5 rounded-xl font-medium text-body-sm md:text-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all relative flex-shrink-0 whitespace-nowrap" data-tab="notifications">
+                <span class="tab-indicator w-1 md:w-1.5 h-4 md:h-6 bg-primary rounded-full absolute left-1 hidden"></span>
+                <span class="material-symbols-outlined text-[18px] md:text-[20px]">notifications</span>
+                <span>Notifications</span>
+              </button>
 
-              <!-- User Profile & Preferences -->
-              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
-                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-surface-container-low">
-                  <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px]">person</span>
-                  </div>
-                  <div>
-                    <h3 class="text-headline-sm text-primary">Profile & Regional Preferences</h3>
-                    <p class="text-body-sm text-on-surface-variant">Personalize your display name and currency format.</p>
-                  </div>
-                </div>
+              <button class="settings-tab-btn flex items-center gap-2 md:gap-3 px-3 md:px-3.5 py-2 md:py-2.5 rounded-xl font-medium text-body-sm md:text-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all relative flex-shrink-0 whitespace-nowrap" data-tab="privacy">
+                <span class="tab-indicator w-1 md:w-1.5 h-4 md:h-6 bg-primary rounded-full absolute left-1 hidden"></span>
+                <span class="material-symbols-outlined text-[18px] md:text-[20px]">shield</span>
+                <span>Data & Privacy</span>
+              </button>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="settingsUserName">Your Display Name</label>
-                    <input type="text" id="settingsUserName" class="w-full px-3.5 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="Enter your name"/>
-                  </div>
-                  <div>
-                    <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="settingsCurrency">Currency Symbol</label>
-                    <select id="settingsCurrency" class="w-full px-3.5 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer">
-                      <option value="₹" selected>₹ (INR - Indian Rupee)</option>
-                      <option value="$">$ (USD - US Dollar)</option>
-                      <option value="€">€ (EUR - Euro)</option>
-                      <option value="£">£ (GBP - British Pound)</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="mt-4 flex justify-end">
-                  <button id="saveProfileSettingsBtn" class="bg-primary text-on-primary px-5 py-2 rounded-lg text-body-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-[18px]">save</span> Save Profile
-                  </button>
-                </div>
-              </div>
+              <button class="settings-tab-btn flex items-center gap-2 md:gap-3 px-3 md:px-3.5 py-2 md:py-2.5 rounded-xl font-medium text-body-sm md:text-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all relative flex-shrink-0 whitespace-nowrap" data-tab="appearance">
+                <span class="tab-indicator w-1 md:w-1.5 h-4 md:h-6 bg-primary rounded-full absolute left-1 hidden"></span>
+                <span class="material-symbols-outlined text-[18px] md:text-[20px]">palette</span>
+                <span>Appearance</span>
+              </button>
 
-              <!-- Notifications & Alert Rules -->
-              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
-                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-surface-container-low">
-                  <div class="w-10 h-10 rounded-full bg-secondary/10 text-secondary flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px]">notifications_active</span>
-                  </div>
-                  <div>
-                    <h3 class="text-headline-sm text-primary">Notification & Alert Rules</h3>
-                    <p class="text-body-sm text-on-surface-variant">Configure automatic in-app alerts and reminders.</p>
-                  </div>
-                </div>
-
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between py-2 border-b border-surface-container-low">
-                    <div>
-                      <p class="text-body-md font-semibold text-primary">1-Day Prior Settlement Alerts</p>
-                      <p class="text-body-sm text-on-surface-variant">Get notified 1 day before friend dues and settlement dates.</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" id="toggleNotifFriend" checked class="sr-only peer">
-                      <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
-                    </label>
-                  </div>
-
-                  <div class="flex items-center justify-between py-2 border-b border-surface-container-low">
-                    <div>
-                      <p class="text-body-md font-semibold text-primary">Budget Limit Exceeded Warnings</p>
-                      <p class="text-body-sm text-on-surface-variant">Show alert badge when total monthly spending crosses budget limit.</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" id="toggleNotifBudget" checked class="sr-only peer">
-                      <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
-                    </label>
-                  </div>
-
-                  <div class="flex items-center justify-between py-2">
-                    <div>
-                      <p class="text-body-md font-semibold text-primary">Bill Due Reminders</p>
-                      <p class="text-body-sm text-on-surface-variant">Include upcoming bill due dates in Notification Center.</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" id="toggleNotifBills" checked class="sr-only peer">
-                      <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Data Storage & Backup Center -->
-              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
-                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-surface-container-low">
-                  <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[20px]">database</span>
-                  </div>
-                  <div>
-                    <h3 class="text-headline-sm text-primary">Data Backup & Storage Center</h3>
-                    <p class="text-body-sm text-on-surface-variant">Export, restore, or reset your local browser IndexedDB data.</p>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-                  <button id="settingsExportJsonBtn" class="px-4 py-3 bg-surface-container-low border border-outline-variant hover:border-primary rounded-xl text-body-sm font-semibold text-primary transition-all flex flex-col items-center justify-center gap-1.5 group">
-                    <span class="material-symbols-outlined text-[24px] text-primary group-hover:scale-110 transition-transform">download</span>
-                    <span>Backup (.JSON)</span>
-                  </button>
-
-                  <label class="px-4 py-3 bg-surface-container-low border border-outline-variant hover:border-primary rounded-xl text-body-sm font-semibold text-primary transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer group">
-                    <span class="material-symbols-outlined text-[24px] text-secondary group-hover:scale-110 transition-transform">upload</span>
-                    <span>Restore Backup</span>
-                    <input type="file" id="settingsImportJsonInput" accept=".json" class="hidden"/>
-                  </label>
-
-                  <button id="settingsExportCsvBtn" class="px-4 py-3 bg-surface-container-low border border-outline-variant hover:border-primary rounded-xl text-body-sm font-semibold text-primary transition-all flex flex-col items-center justify-center gap-1.5 group">
-                    <span class="material-symbols-outlined text-[24px] text-primary group-hover:scale-110 transition-transform">table_chart</span>
-                    <span>Export (.CSV)</span>
-                  </button>
-                </div>
-
-                <!-- Danger Zone -->
-                <div class="p-4 bg-error-container/30 border border-error/30 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                  <div>
-                    <p class="text-body-sm font-bold text-error">Danger Zone: Reset Database</p>
-                    <p class="text-[12px] text-on-surface-variant mt-0.5">Permanently delete all expenses, friends, bills, and reminders from IndexedDB.</p>
-                  </div>
-                  <button id="settingsResetDbBtn" class="bg-error text-white px-4 py-2 rounded-lg text-body-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[16px]">delete_forever</span> Reset Data
-                  </button>
-                </div>
-              </div>
-
+              <button class="settings-tab-btn flex items-center gap-2 md:gap-3 px-3 md:px-3.5 py-2 md:py-2.5 rounded-xl font-medium text-body-sm md:text-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all relative flex-shrink-0 whitespace-nowrap" data-tab="appinfo">
+                <span class="tab-indicator w-1 md:w-1.5 h-4 md:h-6 bg-primary rounded-full absolute left-1 hidden"></span>
+                <span class="material-symbols-outlined text-[18px] md:text-[20px]">info</span>
+                <span>App Info</span>
+              </button>
             </div>
 
-            <!-- Right Col: App Info & Quick Stats Card -->
-            <div class="space-y-6">
+            <!-- Right Tab Content Area -->
+            <div class="flex-1 p-4 sm:p-5 overflow-y-auto">
 
-              <!-- App Info Card -->
-              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm text-center">
-                <img src="logo_brand.png" alt="Spendly Logo" class="h-12 w-auto object-contain mx-auto mb-3"/>
-                <p class="text-headline-sm font-extrabold text-primary">Spendly</p>
-                <p class="text-label-md text-on-surface-variant mt-0.5">Know where it goes</p>
+              <!-- Tab Panel 1: Account & Profile -->
+              <div id="tab-content-profile" class="settings-tab-content active space-y-6 divide-y divide-outline-variant/30">
 
-                <div class="mt-4 pt-4 border-t border-surface-container-low space-y-2 text-left text-body-sm">
-                  <div class="flex justify-between">
-                    <span class="text-on-surface-variant">App Version:</span>
-                    <strong class="text-primary font-semibold">v1.0 (Web)</strong>
+                <!-- 1. Profile Photo & Avatar Section -->
+                <div class="flex flex-col sm:flex-row items-center gap-5 relative pb-2">
+                  <div class="relative group">
+                    <div id="profileAvatarPreview" class="w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center overflow-hidden text-primary shadow-sm">
+                      <span id="profileAvatarIcon" class="material-symbols-outlined text-[42px]">person</span>
+                      <img id="profileAvatarImg" class="w-full h-full object-cover hidden" alt="Profile Avatar"/>
+                    </div>
+                    <label id="profilePhotoCameraBadge" for="profilePhotoInput" class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center cursor-pointer shadow-md hover:scale-110 transition-transform hidden">
+                      <span class="material-symbols-outlined text-[14px]">photo_camera</span>
+                      <input type="file" id="profilePhotoInput" accept="image/*" class="hidden"/>
+                    </label>
                   </div>
-                  <div class="flex justify-between">
-                    <span class="text-on-surface-variant">Storage Engine:</span>
-                    <strong class="text-primary font-semibold">IndexedDB</strong>
+                  <div class="text-center sm:text-left flex-1 min-w-0 pr-10">
+                    <h4 class="text-body-lg font-bold text-primary truncate" id="profileDisplayNameHead">User Profile</h4>
+                    <div id="profilePhotoControls" class="mt-3 flex flex-wrap justify-center sm:justify-start gap-2 hidden">
+                      <label for="profilePhotoInput" class="px-3 py-1 bg-surface border border-outline-variant rounded-lg text-body-sm font-semibold text-primary cursor-pointer hover:bg-surface-container transition-colors shadow-sm">
+                        Upload Photo
+                      </label>
+                      <button id="removeProfilePhotoBtn" class="px-3 py-1 bg-surface border border-outline-variant rounded-lg text-body-sm font-semibold text-error hover:bg-error-container/20 transition-colors shadow-sm">
+                        Remove
+                      </button>
+                    </div>
                   </div>
-                  <div class="flex justify-between">
-                    <span class="text-on-surface-variant">Server Status:</span>
-                    <strong class="text-secondary font-semibold">100% Offline / Local</strong>
+                  <!-- Edit Icon Button inside Profile Card -->
+                  <button id="saveProfileSettingsBtn" class="absolute top-2 right-2 w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-xs flex-shrink-0" title="Update Profile Name & Photo">
+                    <span class="material-symbols-outlined text-[16px] text-white">edit</span>
+                  </button>
+                </div>
+
+                <!-- Full Name Input Field (Toggled by Edit Icon) -->
+                <div id="profileEditFields" class="pt-5 hidden">
+                  <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5 font-bold" for="settingsUserName">Your Full Name</label>
+                  <input type="text" id="settingsUserName" class="w-full px-3.5 py-2.5 border border-outline-variant rounded-xl bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="Enter your full name"/>
+                </div>
+
+                <!-- 2. Regional Preferences (Currency & Date Format) -->
+                <div class="pt-6">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Currency Selection -->
+                    <div>
+                      <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5 font-bold" for="settingsCurrency">Currency Format</label>
+                      <div class="relative">
+                        <select id="settingsCurrency" class="w-full px-3.5 py-2.5 pr-9 border border-outline-variant rounded-xl bg-surface text-body-md text-primary focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer font-medium">
+                          <option value="₹" selected>₹ (INR - Indian Rupee)</option>
+                          <option value="$">$ (USD - US Dollar)</option>
+                          <option value="€">€ (EUR - Euro)</option>
+                          <option value="£">£ (GBP - British Pound)</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+                      </div>
+                    </div>
+
+                    <!-- Date Format Selection -->
+                    <div>
+                      <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5 font-bold" for="settingsDateFormat">Date Format</label>
+                      <div class="relative">
+                        <select id="settingsDateFormat" class="w-full px-3.5 py-2.5 pr-9 border border-outline-variant rounded-xl bg-surface text-body-md text-primary focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer font-medium">
+                          <option value="DD/MM/YYYY" selected>DD/MM/YYYY (Standard - 14/08/2026)</option>
+                          <option value="MM/DD/YYYY">MM/DD/YYYY (US - 08/14/2026)</option>
+                          <option value="YYYY-MM-DD">YYYY-MM-DD (ISO - 2026-08-14)</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+                      </div>
+                    </div>
                   </div>
+                </div>
+
+                <!-- 3. Delete Account Option -->
+                <div class="pt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-error">warning</span>
+                    <h4 class="text-body-md font-bold text-error">Delete Account & Reset Data</h4>
+                  </div>
+                  <button id="deleteAccountBtn" class="bg-error text-white px-5 py-2.5 rounded-xl text-body-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0">
+                    <span class="material-symbols-outlined text-[18px]">delete_forever</span> Delete Account
+                  </button>
+                </div>
+
+              </div>
+
+              <!-- Tab Panel 2: Notifications -->
+              <div id="tab-content-notifications" class="settings-tab-content hidden space-y-6 divide-y divide-outline-variant/30">
+
+                <!-- 1. Push Notifications -->
+                <div class="flex items-center justify-between pb-1">
+                  <p class="text-body-md font-bold text-primary">Push Notifications</p>
+                  <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                    <input type="checkbox" id="notifPushToggle" checked class="sr-only peer">
+                    <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
+                </div>
+
+                <!-- 2. Expense Reminders -->
+                <div class="flex items-center justify-between pt-5">
+                  <p class="text-body-md font-bold text-primary">Expense Reminders</p>
+                  <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                    <input type="checkbox" id="notifExpenseRemindersToggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
+                </div>
+
+                <!-- 3. Debt / Friend Ledger Due Reminders -->
+                <div class="flex items-center justify-between pt-5">
+                  <p class="text-body-md font-bold text-primary">Debt / Friend Ledger Due Reminders</p>
+                  <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                    <input type="checkbox" id="notifFriendLedgerToggle" checked class="sr-only peer">
+                    <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
+                </div>
+
+                <!-- 4. Budget Alerts -->
+                <div class="flex items-center justify-between pt-5">
+                  <p class="text-body-md font-bold text-primary">Budget Alerts</p>
+                  <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                    <input type="checkbox" id="notifBudgetAlertsToggle" checked class="sr-only peer">
+                    <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
+                </div>
+
+                <!-- Save Changes Button -->
+                <div class="flex justify-end pt-5">
+                  <button id="saveNotifPreferencesBtn" class="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-body-sm font-bold tracking-wider uppercase hover:opacity-90 active:scale-95 transition-all shadow-sm">
+                    SAVE CHANGES
+                  </button>
                 </div>
               </div>
 
-              <!-- Storage Stats Summary -->
-              <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
-                <h4 class="text-label-md text-on-surface-variant uppercase tracking-wider mb-4 font-bold">Storage Summary</h4>
-                <div class="space-y-3">
-                  <div class="flex justify-between items-center py-1.5 border-b border-surface-container-low">
-                    <span class="text-body-sm text-on-surface">Total Expenses</span>
-                    <span id="statCountExpenses" class="text-body-sm font-bold text-primary">0</span>
+              <!-- Tab Panel 3: Data & Privacy -->
+              <div id="tab-content-privacy" class="settings-tab-content hidden space-y-6 divide-y divide-outline-variant/30">
+
+                <!-- 1. Export Data (PDF / CSV / Excel) -->
+                <div class="space-y-3 pb-1">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-primary">download</span>
+                    <h4 class="text-body-md font-bold text-primary">Export Data</h4>
                   </div>
-                  <div class="flex justify-between items-center py-1.5 border-b border-surface-container-low">
-                    <span class="text-body-sm text-on-surface">Friend Transactions</span>
-                    <span id="statCountFriends" class="text-body-sm font-bold text-primary">0</span>
+                  <div class="flex flex-wrap gap-2.5 pt-1">
+                    <button id="privacyExportCsvBtn" class="px-4 py-2 bg-surface border border-outline-variant rounded-xl text-body-sm font-bold text-primary hover:bg-surface-container transition-all flex items-center gap-2 shadow-xs">
+                      <span class="material-symbols-outlined text-[18px]">table_chart</span> Export CSV / Excel
+                    </button>
+                    <button id="privacyExportPdfBtn" class="px-4 py-2 bg-surface border border-outline-variant rounded-xl text-body-sm font-bold text-primary hover:bg-surface-container transition-all flex items-center gap-2 shadow-xs">
+                      <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span> Export PDF Report
+                    </button>
                   </div>
-                  <div class="flex justify-between items-center py-1.5 border-b border-surface-container-low">
-                    <span class="text-body-sm text-on-surface">Upcoming Bills</span>
-                    <span id="statCountBills" class="text-body-sm font-bold text-primary">0</span>
+                </div>
+
+                <!-- 2. Backup & Restore -->
+                <div class="pt-5 space-y-3">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-primary">backup</span>
+                    <h4 class="text-body-md font-bold text-primary">Backup & Restore</h4>
                   </div>
-                  <div class="flex justify-between items-center py-1.5">
-                    <span class="text-body-sm text-on-surface">Active Reminders</span>
-                    <span id="statCountReminders" class="text-body-sm font-bold text-primary">0</span>
+                  <div class="flex flex-wrap gap-2.5 pt-1">
+                    <button id="privacyBackupJsonBtn" class="px-4 py-2 bg-primary text-on-primary rounded-xl text-body-sm font-bold hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 shadow-xs">
+                      <span class="material-symbols-outlined text-[18px]">cloud_upload</span> Download Backup (.json)
+                    </button>
+                    <label for="privacyRestoreJsonInput" class="px-4 py-2 bg-surface border border-outline-variant rounded-xl text-body-sm font-bold text-primary hover:bg-surface-container transition-all flex items-center gap-2 shadow-xs cursor-pointer">
+                      <span class="material-symbols-outlined text-[18px]">cloud_download</span> Restore Backup
+                      <input type="file" id="privacyRestoreJsonInput" accept=".json" class="hidden"/>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 3. Privacy Policy -->
+                <div class="pt-5 space-y-3">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-primary">shield</span>
+                    <h4 class="text-body-md font-bold text-primary">Privacy Policy & Security</h4>
+                  </div>
+                  <div class="pt-1">
+                    <button id="openPrivacyPolicyModalBtn" class="text-body-sm font-bold text-primary hover:underline flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[18px]">menu_book</span> Read Full Privacy Policy →
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 4. Clear All Data Option -->
+                <div class="pt-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-error">delete_forever</span>
+                    <h4 class="text-body-md font-bold text-error">Clear All Data</h4>
+                  </div>
+                  <button id="privacyClearAllDataBtn" class="bg-error text-white px-5 py-2.5 rounded-xl text-body-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0">
+                    <span class="material-symbols-outlined text-[18px]">cleaning_services</span> Clear All Data
+                  </button>
+                </div>
+
+              </div>
+
+              <!-- Tab Panel 4: Appearance -->
+              <div id="tab-content-appearance" class="settings-tab-content hidden space-y-6 divide-y divide-outline-variant/30">
+
+                <!-- 1. Dark Theme Mode Toggle -->
+                <div class="flex items-center justify-between pb-1">
+                  <div class="flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-[22px] text-primary" id="darkThemeIcon">dark_mode</span>
+                    <h4 class="text-body-md font-bold text-primary">Dark Theme Mode</h4>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                    <input type="checkbox" id="darkModeToggle" class="sr-only peer">
+                    <div class="w-12 h-6.5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5.5 after:w-5.5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
+                </div>
+
+                <!-- 2. Color Accent Themes Selection -->
+                <div class="pt-5 space-y-3.5">
+                  <h4 class="text-body-md font-bold text-primary">Accent Color Palette</h4>
+
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1" id="themeColorGrid">
+                    <!-- Default Blue -->
+                    <button data-theme="blue" class="theme-color-btn active p-3 rounded-xl border-2 border-primary bg-surface flex flex-col items-center gap-2 hover:scale-[1.02] transition-all relative">
+                      <span class="w-8 h-8 rounded-full bg-[#091426] shadow-sm flex items-center justify-center text-white">
+                        <span class="material-symbols-outlined text-[16px] check-mark">check</span>
+                      </span>
+                      <span class="text-body-sm font-bold text-primary">Default Blue</span>
+                    </button>
+
+                    <!-- Light Green -->
+                    <button data-theme="green" class="theme-color-btn p-3 rounded-xl border-2 border-outline-variant/60 bg-surface flex flex-col items-center gap-2 hover:scale-[1.02] transition-all relative">
+                      <span class="w-8 h-8 rounded-full bg-[#006c49] shadow-sm flex items-center justify-center text-white">
+                        <span class="material-symbols-outlined text-[16px] check-mark hidden">check</span>
+                      </span>
+                      <span class="text-body-sm font-bold text-on-surface">Light Green</span>
+                    </button>
+
+                    <!-- Light Grey -->
+                    <button data-theme="grey" class="theme-color-btn p-3 rounded-xl border-2 border-outline-variant/60 bg-surface flex flex-col items-center gap-2 hover:scale-[1.02] transition-all relative">
+                      <span class="w-8 h-8 rounded-full bg-[#475569] shadow-sm flex items-center justify-center text-white">
+                        <span class="material-symbols-outlined text-[16px] check-mark hidden">check</span>
+                      </span>
+                      <span class="text-body-sm font-bold text-on-surface">Light Grey</span>
+                    </button>
+
+                    <!-- Lite Yellow -->
+                    <button data-theme="yellow" class="theme-color-btn p-3 rounded-xl border-2 border-outline-variant/60 bg-surface flex flex-col items-center gap-2 hover:scale-[1.02] transition-all relative">
+                      <span class="w-8 h-8 rounded-full bg-[#d97706] shadow-sm flex items-center justify-center text-white">
+                        <span class="material-symbols-outlined text-[16px] check-mark hidden">check</span>
+                      </span>
+                      <span class="text-body-sm font-bold text-on-surface">Lite Yellow</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 3. Custom Color Wheel Picker -->
+                <div class="pt-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div class="flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-[22px] text-primary">palette</span>
+                    <h4 class="text-body-md font-bold text-primary">Custom Color Wheel</h4>
+                  </div>
+
+                  <div class="flex items-center gap-3 flex-shrink-0 self-end sm:self-auto">
+                    <span id="customColorHexLabel" class="text-body-sm font-mono font-bold text-primary bg-surface px-3 py-1.5 border border-outline-variant rounded-lg shadow-xs">#091426</span>
+                    <label for="customColorWheel" class="relative w-11 h-11 rounded-full border-2 border-outline-variant shadow-md cursor-pointer overflow-hidden flex items-center justify-center hover:scale-105 active:scale-95 transition-transform" style="background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);" title="Open Color Wheel">
+                      <input type="color" id="customColorWheel" value="#091426" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer"/>
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+              </div>
+
+              <!-- Tab Panel 5: App Info -->
+              <div id="tab-content-appinfo" class="settings-tab-content hidden space-y-6 divide-y divide-outline-variant/30 pt-3 pr-1">
+                <!-- Header & Description -->
+                <div class="space-y-4 pb-2">
+                  <div class="flex flex-col items-start gap-1">
+                    <img src="logo.png" alt="Spendly Logo" class="h-12 sm:h-14 object-contain"/>
+                    <p class="text-[13px] font-medium text-black tracking-tight mt-0.5">Know where it goes</p>
+                  </div>
+
+                  <div class="pt-3 border-t border-outline-variant/30 space-y-2">
+                    <h4 class="text-body-md font-bold text-primary flex items-center gap-2">
+                      <span class="material-symbols-outlined text-[20px] text-secondary">verified</span>
+                      Smart Personal Expense & Friend Ledger Suite
+                    </h4>
+                    <p class="text-body-sm text-on-surface-variant leading-relaxed">
+                      Spendly is your ultimate 100% offline financial companion designed for effortless expense tracking, smart monthly budget management, automated recurring bill alerts, and seamless friend debt settlement ledgers.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Interactive Info List Format -->
+                <div class="pt-4 divide-y divide-outline-variant/30">
+                  <!-- 1. App Version -->
+                  <div class="py-3 flex items-center justify-between group cursor-pointer hover:bg-surface-container-low/50 px-2 rounded-xl transition-colors">
+                    <div class="flex items-center gap-3">
+                      <span class="material-symbols-outlined text-[20px] text-primary">info</span>
+                      <span class="text-body-md font-bold text-primary">App Version</span>
+                    </div>
+                    <span class="text-body-sm font-semibold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant/60">
+                      v1.0.0
+                    </span>
+                  </div>
+
+                  <!-- 2. Feedback -->
+                  <div id="appInfoFeedbackRow" class="py-3 flex items-center justify-between group cursor-pointer hover:bg-surface-container-low/50 px-2 rounded-xl transition-colors">
+                    <div class="flex items-center gap-3">
+                      <span class="material-symbols-outlined text-[20px] text-primary">rate_review</span>
+                      <span class="text-body-md font-bold text-primary">Feedback</span>
+                    </div>
+                    <span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+                  </div>
+
+                  <!-- 3. Contact Us -->
+                  <div id="appInfoContactRow" class="py-3 flex items-center justify-between group cursor-pointer hover:bg-surface-container-low/50 px-2 rounded-xl transition-colors">
+                    <div class="flex items-center gap-3">
+                      <span class="material-symbols-outlined text-[20px] text-primary">mail</span>
+                      <span class="text-body-md font-bold text-primary">Contact Us</span>
+                    </div>
+                    <span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+                  </div>
+
+                  <!-- 4. Terms & Conditions -->
+                  <div id="appInfoTermsRow" class="py-3 flex items-center justify-between group cursor-pointer hover:bg-surface-container-low/50 px-2 rounded-xl transition-colors">
+                    <div class="flex items-center gap-3">
+                      <span class="material-symbols-outlined text-[20px] text-primary">gavel</span>
+                      <span class="text-body-md font-bold text-primary">Terms & Conditions</span>
+                    </div>
+                    <span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
                   </div>
                 </div>
               </div>
@@ -697,7 +883,7 @@
           </div>
           <div>
             <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="expenseDescription">Description</label>
-            <input type="text" id="expenseDescription" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="What was it for?" required/>
+            <input type="text" id="expenseDescription" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="What was it for?"/>
           </div>
         </div>
       </form>
@@ -769,7 +955,7 @@
         <!-- Row 3: Reason / Note -->
         <div>
           <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5" for="friendReason">Reason / Note</label>
-          <input type="text" id="friendReason" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="e.g. Lunch bill, Trip share, Petrol" required/>
+          <input type="text" id="friendReason" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg bg-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" placeholder="e.g. Lunch bill, Trip share, Petrol"/>
         </div>
 
         <!-- Row 4: Transaction Date & Settlement Date -->
@@ -805,6 +991,34 @@
       <div class="px-6 py-4 border-t border-outline-variant flex justify-end gap-3">
         <button id="confirmNo" class="px-4 py-2 rounded-lg text-body-md text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
         <button id="confirmYes" class="bg-error text-on-error px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 transition-opacity">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== PRIVACY POLICY MODAL ============== -->
+  <div class="modal-overlay" id="privacyPolicyModal">
+    <div class="modal-box bg-surface rounded-2xl border border-outline-variant shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+      <div class="p-5 border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[22px] text-primary">shield</span>
+          <h3 class="text-headline-sm font-bold text-primary">Spendly Privacy Policy</h3>
+        </div>
+        <button id="closePrivacyPolicyModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container/20">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 text-body-sm text-on-surface-variant max-h-[70vh] overflow-y-auto">
+        <div class="p-3 bg-secondary/10 border border-secondary/30 rounded-xl text-secondary font-semibold flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">lock</span>
+          <span>100% Local & Privacy-First Architecture</span>
+        </div>
+        <p><strong class="text-primary">1. Local Storage Only:</strong> Spendly is designed to operate completely offline. All your expenses, budgets, friend ledger records, and settings are stored locally on your device using native browser IndexedDB and localStorage.</p>
+        <p><strong class="text-primary">2. No External Tracking:</strong> We do not collect, transmit, or sell any of your personal financial data. No analytics trackers, pixel tags, or third-party telemetries are embedded.</p>
+        <p><strong class="text-primary">3. Complete Data Control:</strong> You own your data. You can export your data into CSV/Excel or JSON backup files at any time, or permanently clear all stored data with a single click.</p>
+        <p><strong class="text-primary">4. Cloud & Sync:</strong> Restoring backups is done locally by importing your JSON file. Your sensitive financial information never leaves your browser.</p>
+      </div>
+      <div class="px-6 py-4 border-t border-outline-variant flex justify-end bg-surface-container-low">
+        <button id="privacyPolicyCloseBtn" class="bg-primary text-on-primary px-6 py-2 rounded-xl text-body-sm font-bold hover:opacity-90 transition-opacity">Got it, thanks!</button>
       </div>
     </div>
   </div>
@@ -970,6 +1184,176 @@
           <span class="material-symbols-outlined text-[18px]">delete_forever</span> Reset Database
         </button>
         <button id="closeDbModalFooter" class="px-4 py-2 rounded-lg text-body-md text-on-surface-variant hover:bg-surface-container transition-colors">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== FEEDBACK MODAL ============== -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="modal-box bg-surface rounded-2xl border border-outline-variant shadow-xl w-full max-w-md mx-4 overflow-hidden">
+      <div class="p-5 border-b border-outline-variant/60 flex justify-between items-center bg-surface-container-low/40">
+        <div class="flex items-center gap-2.5">
+          <span class="material-symbols-outlined text-primary text-[24px]">rate_review</span>
+          <h3 class="text-headline-sm text-primary font-bold">Send Feedback</h3>
+        </div>
+        <button id="closeFeedbackModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container/20">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="feedbackForm" class="p-6 space-y-5" autocomplete="off">
+        <!-- 1. Star Rating (1-5) -->
+        <div class="text-center space-y-2">
+          <label class="block text-body-md font-bold text-primary">How's your experience with Spendly?</label>
+          <div class="flex justify-center items-center gap-1.5 pt-1" id="starRatingContainer">
+            <button type="button" data-star="1" class="star-btn text-amber-400 p-1 focus:outline-none transition-transform hover:scale-110">
+              <span class="material-symbols-outlined text-[32px] fill-current">star</span>
+            </button>
+            <button type="button" data-star="2" class="star-btn text-amber-400 p-1 focus:outline-none transition-transform hover:scale-110">
+              <span class="material-symbols-outlined text-[32px] fill-current">star</span>
+            </button>
+            <button type="button" data-star="3" class="star-btn text-amber-400 p-1 focus:outline-none transition-transform hover:scale-110">
+              <span class="material-symbols-outlined text-[32px] fill-current">star</span>
+            </button>
+            <button type="button" data-star="4" class="star-btn text-amber-400 p-1 focus:outline-none transition-transform hover:scale-110">
+              <span class="material-symbols-outlined text-[32px] fill-current">star</span>
+            </button>
+            <button type="button" data-star="5" class="star-btn text-amber-400 p-1 focus:outline-none transition-transform hover:scale-110">
+              <span class="material-symbols-outlined text-[32px] fill-current">star</span>
+            </button>
+          </div>
+          <input type="hidden" id="feedbackRatingValue" value="5" required />
+          <p id="starRatingLabel" class="text-body-sm font-bold text-amber-600">Excellent (5 Stars)</p>
+        </div>
+
+        <!-- 2. Category Dropdown -->
+        <div>
+          <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5 font-bold" for="feedbackCategory">Category (Optional)</label>
+          <div class="relative">
+            <select id="feedbackCategory" class="w-full px-3.5 py-2.5 pr-9 border border-outline-variant rounded-xl bg-surface text-body-md text-primary focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer font-medium">
+              <option value="General Feedback" selected>General Feedback</option>
+              <option value="Feature Request">Feature Request</option>
+              <option value="Bug Report">Bug Report</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+          </div>
+        </div>
+
+        <!-- 3. Text Area -->
+        <div>
+          <label class="block text-label-md text-on-surface-variant uppercase tracking-wider mb-1.5 font-bold" for="feedbackText">Your Feedback</label>
+          <textarea id="feedbackText" rows="4" class="w-full px-3.5 py-2.5 border border-outline-variant rounded-xl bg-surface text-body-md text-primary focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all resize-none" placeholder="Tell us what you liked or what we can improve..." required></textarea>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-3 border-t border-outline-variant/40">
+          <button type="button" id="cancelFeedbackBtn" class="px-4 py-2.5 rounded-xl text-body-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+          <button type="submit" id="submitFeedbackBtn" class="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-body-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">send</span> Submit Feedback
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============== FEEDBACK PREVIEW & DISPATCH MODAL ============== -->
+  <div class="modal-overlay" id="feedbackPreviewModal">
+    <div class="modal-box bg-surface rounded-2xl border border-outline-variant shadow-xl w-full max-w-md mx-4 overflow-hidden">
+      <div class="p-5 border-b border-outline-variant/60 flex justify-between items-center bg-surface-container-low/40">
+        <div class="flex items-center gap-2.5">
+          <span class="material-symbols-outlined text-primary text-[24px]">send</span>
+          <h3 class="text-headline-sm text-primary font-bold">Send Feedback to Email</h3>
+        </div>
+        <button id="closeFeedbackPreviewModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container/20">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="p-4 bg-surface-container-low border border-outline-variant/60 rounded-xl space-y-2">
+          <div class="flex items-center justify-between text-body-xs font-bold uppercase tracking-wider text-on-surface-variant">
+            <span>To: mahendrakewat0905@gmail.com</span>
+            <span id="previewFeedbackRatingBadge" class="text-amber-600 font-extrabold">★ 5 Stars</span>
+          </div>
+          <p id="previewFeedbackSubject" class="text-body-sm font-bold text-primary border-t border-outline-variant/30 pt-1.5">Subject: Spendly Feedback</p>
+          <div id="previewFeedbackBody" class="text-body-sm text-on-surface-variant bg-surface p-3 rounded-lg border border-outline-variant/40 font-mono whitespace-pre-wrap max-h-32 overflow-y-auto custom-scrollbar"></div>
+        </div>
+
+        <div class="space-y-2.5 pt-1">
+          <button id="openGmailWebBtn" class="w-full bg-primary text-on-primary py-2.5 px-4 rounded-xl text-body-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">open_in_new</span> Open Gmail & Send
+          </button>
+          <button id="copyFeedbackTextBtn" class="w-full bg-surface border border-outline-variant text-primary py-2.5 px-4 rounded-xl text-body-sm font-bold hover:bg-surface-container transition-all flex items-center justify-center gap-2 shadow-xs">
+            <span class="material-symbols-outlined text-[18px]">content_copy</span> Copy Feedback Text
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== CONTACT US MODAL ============== -->
+  <div class="modal-overlay" id="contactModal">
+    <div class="modal-box bg-surface rounded-2xl border border-outline-variant shadow-xl w-full max-w-md mx-4 overflow-hidden">
+      <div class="p-5 border-b border-outline-variant/60 flex justify-between items-center bg-surface-container-low/40">
+        <div class="flex items-center gap-2.5">
+          <span class="material-symbols-outlined text-primary text-[24px]">mail</span>
+          <h3 class="text-headline-sm text-primary font-bold">Contact Support</h3>
+        </div>
+        <button id="closeContactModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container/20">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5">
+        <div class="text-center space-y-2">
+          <div class="w-16 h-16 rounded-full bg-primary/10 text-primary mx-auto flex items-center justify-center shadow-xs">
+            <span class="material-symbols-outlined text-[32px]">mark_email_read</span>
+          </div>
+          <h4 class="text-body-lg font-bold text-primary">Need Help or Have Questions?</h4>
+          <p class="text-body-sm text-on-surface-variant">Our support team is available to assist you with any questions or technical issues.</p>
+        </div>
+
+        <div class="p-4 bg-surface-container-low border border-outline-variant/60 rounded-xl flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="material-symbols-outlined text-primary text-[20px]">alternate_email</span>
+            <span class="text-body-md font-bold text-primary truncate" id="contactEmailAddress">mahendrakewat0905@gmail.com</span>
+          </div>
+          <button id="copyContactEmailBtn" class="px-3 py-1.5 bg-surface border border-outline-variant rounded-lg text-body-sm font-semibold text-primary hover:bg-surface-container transition-all flex items-center gap-1 shadow-xs flex-shrink-0">
+            <span class="material-symbols-outlined text-[16px]">content_copy</span> Copy
+          </button>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-3 border-t border-outline-variant/40">
+          <button id="closeContactModalBtn" class="px-4 py-2.5 rounded-xl text-body-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-colors">Close</button>
+          <a href="mailto:mahendrakewat0905@gmail.com" id="sendDirectEmailBtn" class="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-body-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">send</span> Send Email
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== TERMS & CONDITIONS MODAL ============== -->
+  <div class="modal-overlay" id="termsModal">
+    <div class="modal-box bg-surface rounded-2xl border border-outline-variant shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+      <div class="p-5 border-b border-outline-variant/60 flex justify-between items-center bg-surface-container-low/40">
+        <div class="flex items-center gap-2.5">
+          <span class="material-symbols-outlined text-primary text-[24px]">gavel</span>
+          <h3 class="text-headline-sm text-primary font-bold">Terms & Conditions</h3>
+        </div>
+        <button id="closeTermsModal" class="text-on-surface-variant hover:text-error transition-colors rounded-full p-1 hover:bg-error-container/20">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar text-body-sm text-on-surface-variant leading-relaxed">
+        <p><strong class="text-primary font-bold">1. Acceptance of Terms:</strong> By using Spendly, you agree to store your data locally on your device. Spendly operates 100% offline without selling or uploading your personal transaction records to any remote cloud server.</p>
+        <p><strong class="text-primary font-bold">2. Local Data Privacy:</strong> All financial entries, recurring bill reminders, and friend ledger balances remain encrypted in your browser's IndexedDB / LocalStorage.</p>
+        <p><strong class="text-primary font-bold">3. User Responsibility:</strong> You are responsible for exporting regular JSON backup files to prevent data loss upon clearing browser storage.</p>
+        <p><strong class="text-primary font-bold">4. Software License:</strong> Spendly is provided "as is" for personal expense management purposes.</p>
+      </div>
+
+      <div class="px-6 py-4 border-t border-outline-variant/40 flex justify-end bg-surface-container-low">
+        <button id="closeTermsModalBtn" class="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-body-sm font-bold hover:opacity-90 active:scale-95 transition-all">Close</button>
       </div>
     </div>
   </div>

@@ -179,3 +179,77 @@ select { appearance: none; }
   border-color: #091426 !important;
   box-shadow: 0 4px 6px 0 rgba(9,20,38,0.07);
 }
+
+/* ========================================
+   THEME MODES & COLOR ACCENTS
+   ======================================== */
+
+/* Dark Mode Overrides */
+body.dark-mode {
+  background-color: #0b1320 !important;
+  color: #f1f5f9 !important;
+}
+body.dark-mode header {
+  background-color: #111c2e !important;
+  border-color: #1e293b !important;
+}
+body.dark-mode #sidebar {
+  background-color: #111c2e !important;
+  border-color: #1e293b !important;
+}
+body.dark-mode .bg-surface-container-lowest,
+body.dark-mode .bg-surface {
+  background-color: #172338 !important;
+  border-color: #27354a !important;
+  color: #f8fafc !important;
+}
+body.dark-mode .bg-surface-container-low,
+body.dark-mode .bg-surface-container-low\/50,
+body.dark-mode .bg-surface-container {
+  background-color: #1e2d45 !important;
+  color: #f8fafc !important;
+}
+body.dark-mode .text-primary,
+body.dark-mode .text-on-surface {
+  color: #f1f5f9 !important;
+}
+body.dark-mode .text-on-surface-variant {
+  color: #94a3b8 !important;
+}
+body.dark-mode .border-outline-variant {
+  border-color: #27354a !important;
+}
+body.dark-mode select,
+body.dark-mode input {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+body.dark-mode .notif-panel {
+  background-color: #172338 !important;
+  border-color: #334155 !important;
+}
+
+/* Accent Color 1: Default Blue (Original) */
+[data-accent="blue"] .bg-primary { background-color: #091426 !important; }
+[data-accent="blue"] .text-primary { color: #091426 !important; }
+[data-accent="blue"] .border-primary { border-color: #091426 !important; }
+[data-accent="blue"] .tab-indicator { background-color: #091426 !important; }
+
+/* Accent Color 2: Light Green */
+[data-accent="green"] .bg-primary { background-color: #006c49 !important; }
+[data-accent="green"] .text-primary { color: #006c49 !important; }
+[data-accent="green"] .border-primary { border-color: #006c49 !important; }
+[data-accent="green"] .tab-indicator { background-color: #006c49 !important; }
+
+/* Accent Color 3: Light Grey */
+[data-accent="grey"] .bg-primary { background-color: #475569 !important; }
+[data-accent="grey"] .text-primary { color: #475569 !important; }
+[data-accent="grey"] .border-primary { border-color: #475569 !important; }
+[data-accent="grey"] .tab-indicator { background-color: #475569 !important; }
+
+/* Accent Color 4: Lite Yellow */
+[data-accent="yellow"] .bg-primary { background-color: #d97706 !important; }
+[data-accent="yellow"] .text-primary { color: #d97706 !important; }
+[data-accent="yellow"] .border-primary { border-color: #d97706 !important; }
+[data-accent="yellow"] .tab-indicator { background-color: #d97706 !important; }
