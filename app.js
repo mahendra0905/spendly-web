@@ -244,6 +244,59 @@ async function deleteReminder(id) {
 function formatCurrency(amount) {
   return '₹' + Number(amount).toLocaleString('en-IN', { maximumFractionDigits: 2 });
 }
+
+/**
+ * Smoothly animates a numeric element from 0 to targetNum on dashboard load/refresh.
+ */
+function animateCounter(el, targetNum, options = {}) {
+  const element = typeof el === 'string' ? $(el) : el;
+  if (!element) return;
+
+  const target = Number(targetNum) || 0;
+  const duration = options.duration || 850;
+  const formatType = options.formatType || 'currency';
+  const suffix = options.suffix || '';
+  const prefix = options.prefix || '';
+
+  if (element._countAnimId) {
+    cancelAnimationFrame(element._countAnimId);
+  }
+
+  element.classList.add('counting-up');
+  const startTime = performance.now();
+  const startVal = 0;
+
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(1, elapsed / duration);
+    const easeOut = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+    const currentVal = startVal + (target - startVal) * easeOut;
+
+    if (formatType === 'currency') {
+      element.textContent = prefix + formatCurrency(currentVal) + suffix;
+    } else if (formatType === 'percent') {
+      element.textContent = Math.round(currentVal) + '% ' + suffix;
+    } else {
+      element.textContent = prefix + Math.round(currentVal).toLocaleString('en-IN') + suffix;
+    }
+
+    if (progress < 1) {
+      element._countAnimId = requestAnimationFrame(update);
+    } else {
+      element._countAnimId = null;
+      if (formatType === 'currency') {
+        element.textContent = prefix + formatCurrency(target) + suffix;
+      } else if (formatType === 'percent') {
+        element.textContent = target + '% ' + suffix;
+      } else {
+        element.textContent = prefix + target.toLocaleString('en-IN') + suffix;
+      }
+      setTimeout(() => element.classList.remove('counting-up'), 150);
+    }
+  }
+
+  element._countAnimId = requestAnimationFrame(update);
+}
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -446,17 +499,17 @@ function renderDashboard() {
   const todayExpenses = expenses.filter(e => e.date === today);
   const todayTotal = todayExpenses.reduce((s, e) => s + Number(e.amount), 0);
 
-  // Stats
-  $('#budgetValue').textContent = formatCurrency(budget.amount);
-  $('#totalSpent').textContent = formatCurrency(totalSpent);
-  $('#todaySpend').textContent = formatCurrency(todayTotal);
+  // Stats with Animated Count-Up
+  animateCounter('#budgetValue', budget.amount, { formatType: 'currency' });
+  animateCounter('#totalSpent', totalSpent, { formatType: 'currency' });
+  animateCounter('#todaySpend', todayTotal, { formatType: 'currency' });
 
   const remaining = budget.amount > 0 ? Math.max(0, budget.amount - totalSpent) : 0;
 
   // Remaining with color
   const remEl = $('#remainingValue');
-  remEl.textContent = formatCurrency(remaining);
   remEl.className = 'text-headline-lg mt-2 ' + (budget.amount > 0 ? (remaining > 0 ? 'text-secondary' : 'text-error') : 'text-primary');
+  animateCounter(remEl, remaining, { formatType: 'currency' });
 
   // Budget progress
   const percent = budget.amount > 0 ? Math.min(100, (totalSpent / budget.amount) * 100) : 0;
@@ -464,7 +517,11 @@ function renderDashboard() {
   const bar = $('#budgetProgressBar');
   bar.style.width = percent + '%';
   bar.className = 'progress-fill' + (percent > 90 ? ' danger' : percent > 70 ? ' warning' : '');
-  $('#budgetPercent').textContent = budget.amount > 0 ? Math.round(leftPercent) + '% left' : 'Set a budget';
+  if (budget.amount > 0) {
+    animateCounter('#budgetPercent', Math.round(leftPercent), { formatType: 'percent', suffix: 'left' });
+  } else {
+    $('#budgetPercent').textContent = 'Set a budget';
+  }
 
   // Spent trend
   $('#spentTrend').innerHTML = totalSpent > 0
@@ -592,8 +649,8 @@ function renderFriendLedgerSummary() {
 
   const owedEl = $('#dashOwedToYou');
   const oweEl = $('#dashYouOwe');
-  if (owedEl) owedEl.textContent = formatCurrency(totalOwedToMe);
-  if (oweEl) oweEl.textContent = formatCurrency(totalIOwe);
+  if (owedEl) animateCounter(owedEl, totalOwedToMe, { formatType: 'currency' });
+  if (oweEl) animateCounter(oweEl, totalIOwe, { formatType: 'currency' });
 
   // Mini Friend Ledger readout on Monthly Budget Card
   const miniEl = $('#budgetFriendLedgerMini');
@@ -2378,13 +2435,24 @@ function exportPDF() {
 }
 
 // ===== VERSION CONTROL SYSTEM =====
-const APP_VERSION = 'v1.0.2';
+const APP_VERSION = 'v1.0.3';
 const APP_CHANGELOG = [
+  {
+    version: 'v1.0.3',
+    date: '15 Aug 2026',
+    badge: 'Latest Release',
+    isCurrent: true,
+    summary: 'Animated Count-Up Numbers Engine & Dashboard Rendering Polish',
+    changes: [
+      { type: 'feature', title: 'Animated Count-Up Numbers', text: 'All monetary values, budget totals, and percentages on the dashboard count up smoothly from 0 on page load or refresh.' },
+      { type: 'ui', title: 'Tabular Digits & Exponential Easing', text: '60fps exponential ease-out curve with tabular font formatting prevents horizontal text jitter during counting.' }
+    ]
+  },
   {
     version: 'v1.0.2',
     date: '14 Aug 2026',
-    badge: 'Latest Release',
-    isCurrent: true,
+    badge: 'Previous',
+    isCurrent: false,
     summary: 'Interactive Changelog Engine, Universal Version Triggers, & Category Filtering',
     changes: [
       { type: 'feature', title: 'Universal Version Triggers', text: 'Clicking the sidebar version badge, settings version row, or header badge now opens the Changelog Modal instantly.' },
