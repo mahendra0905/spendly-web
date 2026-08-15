@@ -253,7 +253,7 @@ function animateCounter(el, targetNum, options = {}) {
   if (!element) return;
 
   const target = Number(targetNum) || 0;
-  const duration = options.duration || 850;
+  const duration = options.duration || 1350;
   const formatType = options.formatType || 'currency';
   const suffix = options.suffix || '';
   const prefix = options.prefix || '';
